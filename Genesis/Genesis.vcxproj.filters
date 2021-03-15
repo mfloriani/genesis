@@ -23,27 +23,9 @@
     <ClCompile Include="Common\DeviceResources.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClInclude Include="Content\Sample3DSceneRenderer.h">
-      <Filter>Content</Filter>
-    </ClInclude>
-    <ClInclude Include="Content\SampleFpsTextRenderer.h">
-      <Filter>Content</Filter>
-    </ClInclude>
     <ClInclude Include="Content\ShaderStructures.h">
       <Filter>Content</Filter>
     </ClInclude>
-    <ClCompile Include="Content\Sample3DSceneRenderer.cpp">
-      <Filter>Content</Filter>
-    </ClCompile>
-    <ClCompile Include="Content\SampleFpsTextRenderer.cpp">
-      <Filter>Content</Filter>
-    </ClCompile>
-    <FxCompile Include="Content\SamplePixelShader.hlsl">
-      <Filter>Content</Filter>
-    </FxCompile>
-    <FxCompile Include="Content\SampleVertexShader.hlsl">
-      <Filter>Content</Filter>
-    </FxCompile>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
@@ -62,12 +44,24 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
+    <Filter Include="Content\Shaders">
+      <UniqueIdentifier>{27b58590-12a3-4e01-92ac-2b2365a4323c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="GenesisMain.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="Camera.cpp">
+    <ClCompile Include="Content\StarrySky.cpp">
+      <Filter>Content</Filter>
+    </ClCompile>
+    <ClCompile Include="Content\Camera.cpp">
+      <Filter>Content</Filter>
+    </ClCompile>
+    <ClCompile Include="Content\Genesis3DSceneRenderer.cpp">
+      <Filter>Content</Filter>
+    </ClCompile>
+    <ClCompile Include="Content\FpsTextRenderer.cpp">
       <Filter>Content</Filter>
     </ClCompile>
   </ItemGroup>
@@ -75,10 +69,19 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="GenesisMain.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Camera.h">
+    <ClInclude Include="Content\StarrySky.h">
       <Filter>Content</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
+    <ClInclude Include="Content\Transform.h">
+      <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="Content\Camera.h">
+      <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="Content\Genesis3DSceneRenderer.h">
+      <Filter>Content</Filter>
+    </ClInclude>
+    <ClInclude Include="Content\FpsTextRenderer.h">
       <Filter>Content</Filter>
     </ClInclude>
   </ItemGroup>
@@ -89,5 +92,16 @@
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Content\Shaders\StarrySky\StarrySkyVS.hlsl" />
+    <FxCompile Include="Content\Shaders\StarrySky\StarrySkyPS.hlsl" />
+    <FxCompile Include="Content\Shaders\StarrySky\StarrySkyGS.hlsl" />
+    <FxCompile Include="Content\Shaders\DefaultVS.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Content\Shaders\DefaultPS.hlsl">
+      <Filter>Content\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
