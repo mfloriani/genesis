@@ -7,15 +7,19 @@ using namespace Genesis;
 
 using namespace DirectX;
 using namespace Windows::Foundation;
+using namespace Windows::System;
+using namespace Windows::UI::Core;
+using namespace Windows::ApplicationModel::Core;
 
 // Loads vertex and pixel shaders from files and instantiates the cube geometry.
 Sample3DSceneRenderer::Sample3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_loadingComplete(false),
 	m_degreesPerSecond(45),
 	m_indexCount(0),
-	m_tracking(false),
 	m_deviceResources(deviceResources)
 {
+	m_camera = std::make_unique<Camera>();
+
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
 }
@@ -48,35 +52,35 @@ void Sample3DSceneRenderer::CreateWindowSizeDependentResources()
 		100.0f
 		);
 
-	XMFLOAT4X4 orientation = m_deviceResources->GetOrientationTransform3D();
-
-	XMMATRIX orientationMatrix = XMLoadFloat4x4(&orientation);
-
 	XMStoreFloat4x4(
 		&m_constantBufferData.projection,
-		XMMatrixTranspose(perspectiveMatrix * orientationMatrix)
-		);
+		XMMatrixTranspose(perspectiveMatrix)
+	);
 
-	// Eye is at (0,0.7,1.5), looking at point (0,-0.1,0) with the up-vector along the y-axis.
-	static const XMVECTORF32 eye = { 0.0f, 0.7f, 1.5f, 0.0f };
-	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
-	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
-
-	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+	m_camera->LookAt(XMFLOAT3(0.0f, 0.7f, 1.5f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
 void Sample3DSceneRenderer::Update(DX::StepTimer const& timer)
 {
-	if (!m_tracking)
-	{
-		// Convert degrees to radians, then convert seconds to rotation angle
-		float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
-		double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
-		float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
+	HandleInput(timer);
+	HandleCameraInput(timer);
 
-		Rotate(radians);
-	}
+	m_camera->Update();
+
+	//auto eye = XMLoadFloat3(&m_camera->Eye());
+	//auto at = XMLoadFloat3(&m_camera->At());
+	//auto up = XMLoadFloat3(&m_camera->Up());
+	//XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(XMMatrixLookAtRH(eye, at, up)));
+
+	XMStoreFloat4x4(&m_constantBufferData.view, XMMatrixTranspose(m_camera->View()));
+
+	// Convert degrees to radians, then convert seconds to rotation angle
+	float radiansPerSecond = XMConvertToRadians(m_degreesPerSecond);
+	double totalRotation = timer.GetTotalSeconds() * radiansPerSecond;
+	float radians = static_cast<float>(fmod(totalRotation, XM_2PI));
+
+	Rotate(radians);
 }
 
 // Rotate the 3D cube model a set amount of radians.
@@ -86,24 +90,50 @@ void Sample3DSceneRenderer::Rotate(float radians)
 	XMStoreFloat4x4(&m_constantBufferData.model, XMMatrixTranspose(XMMatrixRotationY(radians)));
 }
 
-void Sample3DSceneRenderer::StartTracking()
+void Sample3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
 {
-	m_tracking = true;
+	if (QueryKeyPressed(VirtualKey::Escape))
+		CoreApplication::Exit();
 }
 
-// When tracking, the 3D cube can be rotated around its Y axis by tracking pointer position relative to the output screen width.
-void Sample3DSceneRenderer::TrackingUpdate(float positionX)
+void Sample3DSceneRenderer::HandleCameraInput(DX::StepTimer const& timer)
 {
-	if (m_tracking)
-	{
-		float radians = XM_2PI * 2.0f * positionX / m_deviceResources->GetOutputSize().Width;
-		Rotate(radians);
-	}
+	float speed = static_cast<float>(timer.GetElapsedSeconds());
+
+	if (QueryKeyPressed(VirtualKey::W))
+		m_camera->MoveZ(-speed);
+
+	if (QueryKeyPressed(VirtualKey::S))
+		m_camera->MoveZ(speed);
+
+	if (QueryKeyPressed(VirtualKey::A))
+		m_camera->MoveX(-speed);
+
+	if (QueryKeyPressed(VirtualKey::D))
+		m_camera->MoveX(speed);
+
+	if (QueryKeyPressed(VirtualKey::Q))
+		m_camera->MoveY(-speed);
+
+	if (QueryKeyPressed(VirtualKey::E))
+		m_camera->MoveY(speed);
+
+	if (QueryKeyPressed(VirtualKey::Up))
+		m_camera->RotateX(speed);
+
+	if (QueryKeyPressed(VirtualKey::Down))
+		m_camera->RotateX(-speed);
+
+	if (QueryKeyPressed(VirtualKey::Left))
+		m_camera->RotateY(speed);
+
+	if (QueryKeyPressed(VirtualKey::Right))
+		m_camera->RotateY(-speed);
 }
 
-void Sample3DSceneRenderer::StopTracking()
+bool Sample3DSceneRenderer::QueryKeyPressed(VirtualKey key)
 {
-	m_tracking = false;
+	return (CoreWindow::GetForCurrentThread()->GetKeyState(key) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
 }
 
 // Renders one frame using the vertex and pixel shaders.
@@ -111,9 +141,7 @@ void Sample3DSceneRenderer::Render()
 {
 	// Loading is asynchronous. Only draw geometry after it's loaded.
 	if (!m_loadingComplete)
-	{
 		return;
-	}
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 

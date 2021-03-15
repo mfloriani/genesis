@@ -1,8 +1,11 @@
 ﻿#pragma once
 
 #include "..\Common\DeviceResources.h"
-#include "ShaderStructures.h"
 #include "..\Common\StepTimer.h"
+#include "ShaderStructures.h"
+#include "Camera.h"
+
+#include <memory>
 
 namespace Genesis
 {
@@ -16,14 +19,12 @@ namespace Genesis
 		void ReleaseDeviceDependentResources();
 		void Update(DX::StepTimer const& timer);
 		void Render();
-		void StartTracking();
-		void TrackingUpdate(float positionX);
-		void StopTracking();
-		bool IsTracking() { return m_tracking; }
-
-
+		
 	private:
 		void Rotate(float radians);
+		void HandleInput(DX::StepTimer const& timer);
+		void HandleCameraInput(DX::StepTimer const& timer);
+		bool QueryKeyPressed(Windows::System::VirtualKey key);
 
 	private:
 		// Cached pointer to device resources.
@@ -44,7 +45,10 @@ namespace Genesis
 		// Variables used with the rendering loop.
 		bool	m_loadingComplete;
 		float	m_degreesPerSecond;
-		bool	m_tracking;
+
+		std::unique_ptr<Camera> m_camera;
+
+
 	};
 }
 
