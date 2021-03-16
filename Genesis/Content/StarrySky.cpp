@@ -2,6 +2,8 @@
 #include "StarrySky.h"
 #include "..\Common\DirectXHelper.h"
 
+#include <array>
+
 using namespace Genesis;
 using namespace DirectX;
 
@@ -107,6 +109,20 @@ void StarrySky::CreateDeviceDependentResources()
 	});
 
 	createSkyTask.then([this]() {
+
+		D3D11_BLEND_DESC AdditiveBlendingDesc = {};
+		AdditiveBlendingDesc.RenderTarget[0].BlendEnable = true;
+		AdditiveBlendingDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		AdditiveBlendingDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		AdditiveBlendingDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+		AdditiveBlendingDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		AdditiveBlendingDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+		AdditiveBlendingDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		AdditiveBlendingDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateBlendState(&AdditiveBlendingDesc, &m_additiveBlending)
+		);
+
 		m_ready = true;
 	});
 
@@ -200,5 +216,18 @@ void StarrySky::Render()
 		0
 	);
 
+	// save the current blending state to restore in the end
+	//Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState0 = nullptr;
+	//UINT SampleMask0;
+	//std::array<float, 4> BlendFactor0;
+	//context->OMGetBlendState(&pBlendState0, BlendFactor0.data(), &SampleMask0);
+
+	//// turn on the additive blending factor
+	//std::vector<float> bf{ 0.f, 0.f, 0.f, 0.f };
+	//context->OMSetBlendState(m_additiveBlending.Get(), bf.data(), 0xFFFFFFFF);
+
 	context->Draw(m_indexCount, 0);
+
+	// restore the original blending state
+	//context->OMSetBlendState(m_additiveBlending.Get(), BlendFactor0.data(), SampleMask0);
 }

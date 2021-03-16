@@ -6,5 +6,7 @@ struct GSOutput
 
 float4 main(GSOutput input) : SV_TARGET
 {
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
+    float2 center = float2(0.5, 0.5);    
+    float v = 1.0 - smoothstep(0.0, 0.1, length(input.uv - center)); // falloff
+    return (float4) v;
 }

@@ -29,6 +29,7 @@ namespace Genesis
 		Microsoft::WRL::ComPtr<ID3D11GeometryShader>m_geometryShader;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_constantBuffer;
+		Microsoft::WRL::ComPtr<ID3D11BlendState>    m_additiveBlending;
 
 		ModelViewProjCB	m_MVPBufferData;
 		bool            m_ready;
