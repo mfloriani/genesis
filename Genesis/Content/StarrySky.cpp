@@ -103,27 +103,7 @@ void StarrySky::CreateDeviceDependentResources()
 				&m_vertexBuffer
 			)
 		);
-
-		static const unsigned short indices[] = 
-		{
-			0,1,2,3,4,5,6,7
-		};
-
-		m_indexCount = ARRAYSIZE(indices);
-
-		D3D11_SUBRESOURCE_DATA indexBufferData = { 0 };
-		indexBufferData.pSysMem = indices;
-		indexBufferData.SysMemPitch = 0;
-		indexBufferData.SysMemSlicePitch = 0;
-		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(indices), D3D11_BIND_INDEX_BUFFER);
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&indexBufferDesc,
-				&indexBufferData,
-				&m_indexBuffer
-			)
-		);
-
+		m_indexCount = ARRAYSIZE(vertices);
 	});
 
 	createSkyTask.then([this]() {
@@ -141,7 +121,6 @@ void StarrySky::ReleaseDeviceDependentResources()
 	m_constantBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_geometryShader.Reset();
-	m_indexBuffer.Reset();
 }
 
 void StarrySky::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp)
@@ -178,12 +157,6 @@ void StarrySky::Render()
 		m_vertexBuffer.GetAddressOf(),
 		&stride,
 		&offset
-	);
-
-	context->IASetIndexBuffer(
-		m_indexBuffer.Get(),
-		DXGI_FORMAT_R16_UINT, // Each index is one 16-bit unsigned integer (short).
-		0
 	);
 
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -227,11 +200,5 @@ void StarrySky::Render()
 		0
 	);
 
-	// Draw the objects.
-	context->DrawIndexed(
-		m_indexCount,
-		0,
-		0
-	);
-
+	context->Draw(m_indexCount, 0);
 }
