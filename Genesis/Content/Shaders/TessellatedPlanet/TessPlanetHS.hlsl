@@ -1,22 +1,21 @@
 // Input control point
 struct VS_CONTROL_POINT_OUTPUT
 {
-	float3 vPosition : WORLDPOS;
-	// TODO: change/add other stuff
+	float3 position : WORLDPOS;
+    float tessFactor : TESS;
 };
 
 // Output control point
 struct HS_CONTROL_POINT_OUTPUT
 {
-	float3 vPosition : WORLDPOS; 
+	float3 position : WORLDPOS; 
 };
 
 // Output patch constant data.
 struct HS_CONSTANT_DATA_OUTPUT
 {
-	float EdgeTessFactor[3]			: SV_TessFactor; // e.g. would be [4] for a quad domain
-	float InsideTessFactor			: SV_InsideTessFactor; // e.g. would be Inside[2] for a quad domain
-	// TODO: change/add other stuff
+	float EdgeTessFactor[3]	: SV_TessFactor; // e.g. would be [4] for a quad domain
+	float InsideTessFactor	: SV_InsideTessFactor; // e.g. would be Inside[2] for a quad domain
 };
 
 #define NUM_CONTROL_POINTS 3
@@ -27,12 +26,11 @@ HS_CONSTANT_DATA_OUTPUT CalcHSPatchConstants(
 	uint PatchID : SV_PrimitiveID)
 {
 	HS_CONSTANT_DATA_OUTPUT Output;
-
-	// Insert code to compute Output here
+	
 	Output.EdgeTessFactor[0] = 
 		Output.EdgeTessFactor[1] = 
 		Output.EdgeTessFactor[2] = 
-		Output.InsideTessFactor = 15; // e.g. could calculate dynamic tessellation factors instead
+		Output.InsideTessFactor = ip[0].tessFactor;
 
 	return Output;
 }
@@ -50,7 +48,7 @@ HS_CONTROL_POINT_OUTPUT main(
 	HS_CONTROL_POINT_OUTPUT Output;
 
 	// Insert code to compute Output here
-	Output.vPosition = ip[i].vPosition;
+	Output.position = ip[i].position;
 
 	return Output;
 }

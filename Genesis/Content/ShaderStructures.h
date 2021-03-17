@@ -11,6 +11,12 @@ namespace Genesis
 		DirectX::XMFLOAT4X4 invView;
 	};
 
+	// Constant buffer used to send MVP matrices to the vertex shader.
+	struct CameraCB
+	{
+		DirectX::XMFLOAT4 cameraPos;
+	};
+
 	// Used to send per-vertex data to the vertex shader.
 	struct VertexPositionColor
 	{

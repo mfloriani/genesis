@@ -28,8 +28,8 @@ public:
 	const DirectX::XMFLOAT3& Eye() const { return _eye; };
 	const DirectX::XMFLOAT3& At() const { return _at; };
 	const DirectX::XMFLOAT3& Up() const { return _up; };
-
-
+	
+	const DirectX::XMVECTOR EyeVec() const { return XMLoadFloat3(&_eye); };
 
 	void Eye(const DirectX::XMFLOAT3& eye) { _eye = eye; };
 	void LookAt(const DirectX::XMFLOAT3& eye, const DirectX::XMFLOAT3& at);

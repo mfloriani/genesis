@@ -75,7 +75,7 @@ void StarrySky::CreateDeviceDependentResources()
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc,
 				nullptr,
-				&m_constantBuffer
+				&m_MVPBuffer
 			)
 		);
 	});
@@ -140,7 +140,7 @@ void StarrySky::ReleaseDeviceDependentResources()
 	m_vertexShader.Reset();
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();
-	m_constantBuffer.Reset();
+	m_MVPBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_geometryShader.Reset();
 }
@@ -161,7 +161,7 @@ void StarrySky::Render()
 
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(
-		m_constantBuffer.Get(),
+		m_MVPBuffer.Get(),
 		0,
 		NULL,
 		&m_MVPBufferData,
@@ -195,9 +195,21 @@ void StarrySky::Render()
 	context->VSSetConstantBuffers1(
 		0,
 		1,
-		m_constantBuffer.GetAddressOf(),
+		m_MVPBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
+	);
+
+	context->HSSetShader(
+		nullptr,
+		nullptr,
+		0
+	);
+
+	context->DSSetShader(
+		nullptr,
+		nullptr,
+		0
 	);
 
 	context->GSSetShader(
@@ -210,7 +222,7 @@ void StarrySky::Render()
 	context->GSSetConstantBuffers1(
 		0,
 		1,
-		m_constantBuffer.GetAddressOf(),
+		m_MVPBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);

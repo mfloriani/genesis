@@ -66,11 +66,14 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	HandleCameraInput(timer);
 
 	m_camera->Update();
-	XMStoreFloat4x4(&m_MVPBufferData.view, XMMatrixTranspose(m_camera->View()));
-	XMStoreFloat4x4(&m_MVPBufferData.invView, XMMatrixTranspose(XMMatrixInverse(nullptr, m_camera->View())));
+	XMVECTOR camEye = m_camera->EyeVec();
+	XMMATRIX camView = m_camera->View();
+
+	XMStoreFloat4x4(&m_MVPBufferData.view, XMMatrixTranspose(camView));
+	XMStoreFloat4x4(&m_MVPBufferData.invView, XMMatrixTranspose(XMMatrixInverse(nullptr, camView)));
 
 	m_starrySky->Update(timer, m_MVPBufferData);
-	m_tessPlanet->Update(timer, m_MVPBufferData);
+	m_tessPlanet->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)

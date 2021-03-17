@@ -86,26 +86,22 @@ void TessPlanet::CreateDeviceDependentResources()
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc,
 				nullptr,
-				&m_constantBuffer
+				&m_MVPBuffer
+			)
+		);
+
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateBuffer(
+				&constantBufferDesc2,
+				nullptr,
+				&m_cameraBuffer
 			)
 		);
 	});
 
 
 	auto createSkyTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
-
-		// cube
-		//std::vector<VertexPosition> vertices =
-		//{
-		//	{XMFLOAT3(-0.5f, -0.5f, -0.5f)},
-		//	{XMFLOAT3(-0.5f, -0.5f,  0.5f)},
-		//	{XMFLOAT3(-0.5f,  0.5f, -0.5f)},
-		//	{XMFLOAT3(-0.5f,  0.5f,  0.5f)},
-		//	{XMFLOAT3( 0.5f, -0.5f, -0.5f)}, 
-		//	{XMFLOAT3( 0.5f, -0.5f,  0.5f)}, 
-		//	{XMFLOAT3( 0.5f,  0.5f, -0.5f)}, 
-		//	{XMFLOAT3( 0.5f,  0.5f,  0.5f)} 
-		//};
 
 		// icosahedron
 		std::vector<VertexPosition> vertices =
@@ -149,19 +145,19 @@ void TessPlanet::CreateDeviceDependentResources()
 			4, 3, 0,
 			5, 4, 0,
 			1, 5, 0,
-			11, 6,  7,
-			11, 7,  8,
-			11, 8,  9,
-			11, 9,  10,
+			11, 6, 7,
+			11, 7, 8,
+			11, 8, 9,
+			11, 9, 10,
 			11, 10, 6,
 			1, 2, 6,
 			2, 3, 7,
 			3, 4, 8,
 			4, 5, 9,
 			5, 1, 10,
-			2,  7, 6,
-			3,  8, 7,
-			4,  9, 8,
+			2, 7, 6,
+			3, 8, 7,
+			4, 9, 8,
 			5, 10, 9,
 			1, 6, 10 
 		};
@@ -214,18 +210,21 @@ void TessPlanet::ReleaseDeviceDependentResources()
 	m_vertexShader.Reset();
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();
-	m_constantBuffer.Reset();
+	m_MVPBuffer.Reset();
+	m_cameraBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_hullShader.Reset();
 	m_domainShader.Reset();
 }
 
-void TessPlanet::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp)
+void TessPlanet::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
 {
 	XMStoreFloat4x4(&m_MVPBufferData.model, XMMatrixIdentity());
 	m_MVPBufferData.view = mvp.view;
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
+
+	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
 }
 
 void TessPlanet::Render()
@@ -236,10 +235,20 @@ void TessPlanet::Render()
 
 	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(
-		m_constantBuffer.Get(),
+		m_MVPBuffer.Get(),
 		0,
 		NULL,
 		&m_MVPBufferData,
+		0,
+		0,
+		0
+	);
+
+	context->UpdateSubresource1(
+		m_cameraBuffer.Get(),
+		0,
+		NULL,
+		&m_cameraBufferData,
 		0,
 		0,
 		0
@@ -262,8 +271,7 @@ void TessPlanet::Render()
 		0
 	);
 
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 	context->IASetInputLayout(m_inputLayout.Get());
 
 	// Attach our vertex shader.
@@ -277,24 +285,38 @@ void TessPlanet::Render()
 	context->VSSetConstantBuffers1(
 		0,
 		1,
-		m_constantBuffer.GetAddressOf(),
+		m_MVPBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);
 
-	
+	context->VSSetConstantBuffers1(
+		1,
+		1,
+		m_cameraBuffer.GetAddressOf(),
+		nullptr,
+		nullptr
+	);
 
-	//context->HSSetShader(
-	//	m_hullShader.Get(),
-	//	nullptr,
-	//	0
-	//);
+	context->HSSetShader(
+		m_hullShader.Get(),
+		nullptr,
+		0
+	);
 
-	//context->DSSetShader(
-	//	m_domainShader.Get(),
-	//	nullptr,
-	//	0
-	//);
+	context->DSSetShader(
+		m_domainShader.Get(),
+		nullptr,
+		0
+	);
+
+	context->DSSetConstantBuffers1(
+		0,
+		1,
+		m_MVPBuffer.GetAddressOf(),
+		nullptr,
+		nullptr
+	);
 
 	context->GSSetShader(
 		nullptr,
@@ -302,14 +324,7 @@ void TessPlanet::Render()
 		0
 	);
 
-	// Send the constant buffer to the graphics device.
-	//context->GSSetConstantBuffers1(
-	//	0,
-	//	1,
-	//	m_constantBuffer.GetAddressOf(),
-	//	nullptr,
-	//	nullptr
-	//);
+	
 
 	
 	context->RSSetState(m_rasterizerState.Get());
