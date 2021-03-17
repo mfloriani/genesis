@@ -253,6 +253,7 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="Content\Camera.h" />
     <ClInclude Include="Common\DeviceResources.h" />
+    <ClInclude Include="Content\Util.h" />
     <ClInclude Include="GenesisMain.h" />
     <ClInclude Include="Common\DirectXHelper.h" />
     <ClInclude Include="Common\StepTimer.h" />

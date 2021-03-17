@@ -16,7 +16,7 @@ class Camera
 	DirectX::XMFLOAT3   _right;
 	DirectX::XMFLOAT4X4 _view;
 
-	const float _speed = 10.0f;
+	const float _speed = 5.0f;
 
 public:
 

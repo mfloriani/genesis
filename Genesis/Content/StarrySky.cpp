@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "StarrySky.h"
+#include "Util.h"
 #include "..\Common\DirectXHelper.h"
 
 #include <array>
@@ -81,23 +82,28 @@ void StarrySky::CreateDeviceDependentResources()
 
 
 	auto createSkyTask = (createVSTask && createGSTask && createPSTask).then([this]() {
-		static const VertexPosition vertices[] =
-		{
-			{XMFLOAT3(-0.5f, -0.5f, -0.5f)},
-			{XMFLOAT3(-0.5f, -0.5f,  0.5f)},
-			{XMFLOAT3(-0.5f,  0.5f, -0.5f)},
-			{XMFLOAT3(-0.5f,  0.5f,  0.5f)},
-			{XMFLOAT3( 0.5f, -0.5f, -0.5f)}, 
-			{XMFLOAT3( 0.5f, -0.5f,  0.5f)}, 
-			{XMFLOAT3( 0.5f,  0.5f, -0.5f)}, 
-			{XMFLOAT3( 0.5f,  0.5f,  0.5f)} 
-		};
+		
+		//m_indexCount = 8;
+		//std::vector<VertexPosition> vertices =
+		//{
+		//	{XMFLOAT3(-0.5f, -0.5f, -0.5f)},
+		//	{XMFLOAT3(-0.5f, -0.5f,  0.5f)},
+		//	{XMFLOAT3(-0.5f,  0.5f, -0.5f)},
+		//	{XMFLOAT3(-0.5f,  0.5f,  0.5f)},
+		//	{XMFLOAT3( 0.5f, -0.5f, -0.5f)}, 
+		//	{XMFLOAT3( 0.5f, -0.5f,  0.5f)}, 
+		//	{XMFLOAT3( 0.5f,  0.5f, -0.5f)}, 
+		//	{XMFLOAT3( 0.5f,  0.5f,  0.5f)} 
+		//};
+
+		m_indexCount = 1000; // number of stars
+		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 25.0f);
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
-		vertexBufferData.pSysMem = vertices;
+		vertexBufferData.pSysMem = vertices.data();
 		vertexBufferData.SysMemPitch = 0;
 		vertexBufferData.SysMemSlicePitch = 0;
-		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(vertices), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VertexPosition) * m_indexCount, D3D11_BIND_VERTEX_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&vertexBufferDesc,
@@ -105,7 +111,7 @@ void StarrySky::CreateDeviceDependentResources()
 				&m_vertexBuffer
 			)
 		);
-		m_indexCount = ARRAYSIZE(vertices);
+		
 	});
 
 	createSkyTask.then([this]() {
@@ -217,17 +223,17 @@ void StarrySky::Render()
 	);
 
 	// save the current blending state to restore in the end
-	//Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState0 = nullptr;
-	//UINT SampleMask0;
-	//std::array<float, 4> BlendFactor0;
-	//context->OMGetBlendState(&pBlendState0, BlendFactor0.data(), &SampleMask0);
+	Microsoft::WRL::ComPtr<ID3D11BlendState> pBlendState0 = nullptr;
+	UINT SampleMask0;
+	std::array<float, 4> BlendFactor0;
+	context->OMGetBlendState(&pBlendState0, BlendFactor0.data(), &SampleMask0);
 
-	//// turn on the additive blending factor
-	//std::vector<float> bf{ 0.f, 0.f, 0.f, 0.f };
-	//context->OMSetBlendState(m_additiveBlending.Get(), bf.data(), 0xFFFFFFFF);
+	// turn on the additive blending factor
+	std::vector<float> bf{ 0.f, 0.f, 0.f, 0.f };
+	context->OMSetBlendState(m_additiveBlending.Get(), bf.data(), 0xFFFFFFFF);
 
 	context->Draw(m_indexCount, 0);
 
 	// restore the original blending state
-	//context->OMSetBlendState(m_additiveBlending.Get(), BlendFactor0.data(), SampleMask0);
+	context->OMSetBlendState(m_additiveBlending.Get(), BlendFactor0.data(), SampleMask0);
 }
