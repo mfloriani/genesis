@@ -64,6 +64,8 @@
     <ClCompile Include="Content\FpsTextRenderer.cpp">
       <Filter>Content</Filter>
     </ClCompile>
+    <ClCompile Include="Content\TessPlanet.cpp" />
+    <ClCompile Include="Content\Util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -85,6 +87,7 @@
       <Filter>Content</Filter>
     </ClInclude>
     <ClInclude Include="Content\Util.h" />
+    <ClInclude Include="Content\TessPlanet.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -104,5 +107,9 @@
     <FxCompile Include="Content\Shaders\DefaultPS.hlsl">
       <Filter>Content\Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetVS.hlsl" />
+    <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetPS.hlsl" />
+    <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetHS.hlsl" />
+    <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetDS.hlsl" />
   </ItemGroup>
 </Project>

@@ -9,28 +9,13 @@
 
 namespace Genesis
 {
-    double MinMaxRand(int min, int max)
-    {
-        return ((double)rand() / ((double)RAND_MAX + 1.0)) * (max - min) + min;
-    }
+    // return random number between min and max
+    double MinMaxRand(int min, int max);
 
-    std::vector<VertexPosition> GenerateRandomPointsOnSphere(int n, float r)
-    {
-        std::vector<VertexPosition> points(n);
-
-        double theta = 0, phi = 0;
-        for (int i = 0; i < n; i++)
-        {
-            theta = 2 * DirectX::XM_PI * MinMaxRand(0, 1);
-            phi = acos(2 * MinMaxRand(0, 1) - 1.0);
-
-            float x = r * static_cast<float>(cos(theta) * sin(phi));
-            float y = r * static_cast<float>(sin(theta) * sin(phi));
-            float z = r * static_cast<float>(cos(phi));
-
-            points[i].pos = DirectX::XMFLOAT3(x, y, z);
-        }
-
-        return points;
-    }
+    /**
+    * return array of random points on the surface of a sphere
+    * n: number of points
+    * r: sphere radius
+    */     
+    std::vector<VertexPosition> GenerateRandomPointsOnSphere(int n, float r);
 }

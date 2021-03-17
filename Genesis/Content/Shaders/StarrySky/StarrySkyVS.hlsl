@@ -1,5 +1,5 @@
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
-cbuffer ViewProjCB : register(b0)
+cbuffer ModelViewProjCB : register(b0)
 {
 	matrix gModel;
 	matrix gView;

@@ -34,6 +34,6 @@ namespace Genesis
 		ModelViewProjCB	m_MVPBufferData;
 		bool            m_ready;
 		unsigned int    m_indexCount;
-};
+	};
 
 }

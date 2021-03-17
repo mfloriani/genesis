@@ -17,6 +17,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 {
 	m_camera = std::make_unique<Camera>();
 	m_starrySky = std::make_unique<StarrySky>(deviceResources);
+	m_tessPlanet = std::make_unique<TessPlanet>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -69,6 +70,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	XMStoreFloat4x4(&m_MVPBufferData.invView, XMMatrixTranspose(XMMatrixInverse(nullptr, m_camera->View())));
 
 	m_starrySky->Update(timer, m_MVPBufferData);
+	m_tessPlanet->Update(timer, m_MVPBufferData);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -120,15 +122,17 @@ bool Genesis3DSceneRenderer::QueryKeyPressed(VirtualKey key)
 void Genesis3DSceneRenderer::Render()
 {
 	m_starrySky->Render();
-
+	m_tessPlanet->Render();
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 {
 	m_starrySky->CreateDeviceDependentResources();
+	m_tessPlanet->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 {
 	m_starrySky->ReleaseDeviceDependentResources();
+	m_tessPlanet->ReleaseDeviceDependentResources();
 }

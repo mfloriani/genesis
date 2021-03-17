@@ -96,8 +96,8 @@ void StarrySky::CreateDeviceDependentResources()
 		//	{XMFLOAT3( 0.5f,  0.5f,  0.5f)} 
 		//};
 
-		m_indexCount = 1000; // number of stars
-		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 25.0f);
+		m_indexCount = 10000; // number of stars
+		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 50.0f);
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 		vertexBufferData.pSysMem = vertices.data();
