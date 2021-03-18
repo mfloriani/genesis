@@ -1,14 +1,23 @@
 // Input control point
 struct VS_CONTROL_POINT_OUTPUT
 {
-	float3 position : WORLDPOS;
+    float3 positionW : WORLDPOS;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float2 textcoord : TEXCOORD;
     float tessFactor : TESS;
 };
 
 // Output control point
 struct HS_CONTROL_POINT_OUTPUT
 {
-	float3 position : WORLDPOS; 
+    float3 positionW : WORLDPOS;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float2 textcoord : TEXCOORD;
+    float tessFactor : TESS;
 };
 
 // Output patch constant data.
@@ -48,7 +57,8 @@ HS_CONTROL_POINT_OUTPUT main(
 	HS_CONTROL_POINT_OUTPUT Output;
 
 	// Insert code to compute Output here
-	Output.position = ip[i].position;
+	Output.positionW = ip[i].positionW;
+    Output.normal = ip[i].normal;
 
 	return Output;
 }

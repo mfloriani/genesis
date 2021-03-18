@@ -9,14 +9,25 @@ cbuffer ModelViewProjCB : register(b0)
 
 struct DS_OUTPUT
 {
-	float4 vPositionH  : SV_POSITION;
-    //float4 vPositionW : WORLDPOS;
+	float4 positionH  : SV_POSITION;
+    float3 positionW : WORLDPOS;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float2 textcoord : TEXCOORD;
+    float tessFactor : TESS;
 };
 
 // Output control point
 struct HS_CONTROL_POINT_OUTPUT
 {
-	float3 vPosition : WORLDPOS;
+    float3 positionW : WORLDPOS;
+    float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+    float2 textcoord : TEXCOORD;
+    float tessFactor : TESS;
+    
 };
 
 // Output patch constant data.
@@ -38,16 +49,18 @@ DS_OUTPUT main(
 {
 	DS_OUTPUT Output;
 	
-    float3 p = domain.x * patch[0].vPosition + domain.y * patch[1].vPosition + domain.z * patch[2].vPosition;
+    float3 p = domain.x * patch[0].positionW + domain.y * patch[1].positionW + domain.z * patch[2].positionW;
     p = normalize(p);
     
-    float4 pos = float4(p, 1);
-	
+    Output.normal = domain.x * patch[0].normal + domain.y * patch[1].normal + domain.x * patch[2].normal;
+    Output.normal = normalize(Output.normal);
+    
+    float4 pos = float4(p, 1);	
     pos = mul(pos, gModel);
     pos = mul(pos, gView);
     pos = mul(pos, gProj);
-	
-    Output.vPositionH = pos;
+    
+    Output.positionH = pos;
 	//Output.Color = float4(domain.yx, 1 - domain.x, 1);
 	
 	return Output;

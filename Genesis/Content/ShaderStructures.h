@@ -17,15 +17,19 @@ namespace Genesis
 		DirectX::XMFLOAT4 cameraPos;
 	};
 
-	// Used to send per-vertex data to the vertex shader.
-	struct VertexPositionColor
-	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 color;
-	};
-
+	
 	struct VertexPosition
 	{
 		DirectX::XMFLOAT3 pos;
+	};
+
+	// Position, Normal, Texture, Tangent, Binormal
+	struct VertexPosNorTexTanBin
+	{
+		DirectX::XMFLOAT3 position;
+		DirectX::XMFLOAT3 normal;
+		DirectX::XMFLOAT3 tangent;
+		DirectX::XMFLOAT3 binormal;
+		DirectX::XMFLOAT2 texcoord;
 	};
 }

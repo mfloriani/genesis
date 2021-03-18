@@ -35,7 +35,11 @@ void TessPlanet::CreateDeviceDependentResources()
 
 		static const D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 		{
-			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 		};
 
 		DX::ThrowIfFailed(
@@ -104,41 +108,24 @@ void TessPlanet::CreateDeviceDependentResources()
 	auto createSkyTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
 
 		// icosahedron
-		std::vector<VertexPosition> vertices =
+
+		std::vector<VertexPosNorTexTanBin> vertices =
 		{
-			{ XMFLOAT3(0.000f,  0.000f,  1.000f) },
-			{ XMFLOAT3(0.894f,  0.000f,  0.447f) },
-			{ XMFLOAT3(0.276f,  0.851f,  0.447f) },
-			{ XMFLOAT3(-0.724f,  0.526f,  0.447f) },
-			{ XMFLOAT3(-0.724f, -0.526f,  0.447f) },
-			{ XMFLOAT3(0.276f, -0.851f,  0.447f) },
-			{ XMFLOAT3(0.724f,  0.526f, -0.447f) },
-			{ XMFLOAT3(-0.276f,  0.851f, -0.447f) },
-			{ XMFLOAT3(-0.894f,  0.000f, -0.447f) },
-			{ XMFLOAT3(-0.276f, -0.851f, -0.447f) },
-			{ XMFLOAT3(0.724f, -0.526f, -0.447f) },
-			{ XMFLOAT3(0.000f,  0.000f, -1.000f) }
+			{ XMFLOAT3(0.000f,  0.000f,  1.000f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.894f,  0.000f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.276f,  0.851f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.724f,  0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.724f, -0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.276f, -0.851f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.724f,  0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.276f,  0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.894f,  0.000f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.276f, -0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.724f, -0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(0.000f,  0.000f, -1.000f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) }
 		};
 
-		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
-		vertexBufferData.pSysMem = vertices.data();
-		vertexBufferData.SysMemPitch = 0;
-		vertexBufferData.SysMemSlicePitch = 0;
-		
-		CD3D11_BUFFER_DESC vertexBufferDesc(
-			sizeof(VertexPosition) * vertices.size(), 
-			D3D11_BIND_VERTEX_BUFFER
-		);
-
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&vertexBufferDesc,
-				&vertexBufferData,
-				&m_vertexBuffer
-			)
-		);
-
-		std::vector<unsigned int> indices = 
+		std::vector<unsigned int> indices =
 		{
 			2, 1, 0,
 			3, 2, 0,
@@ -159,10 +146,56 @@ void TessPlanet::CreateDeviceDependentResources()
 			3, 8, 7,
 			4, 9, 8,
 			5, 10, 9,
-			1, 6, 10 
+			1, 6, 10
 		};
-
 		m_indexCount = indices.size();
+
+
+		std::vector<XMVECTOR> vertexNormals(vertices.size(), XMVectorZero());
+
+		for (int i = 0; i < indices.size(); i += 3)
+		{
+			int v1 = indices[i];
+			int v2 = indices[i+1];
+			int v3 = indices[i+2];
+
+			XMVECTOR v1Pos = XMLoadFloat3(&vertices[v1].position);
+			XMVECTOR v2Pos = XMLoadFloat3(&vertices[v2].position);
+			XMVECTOR v3Pos = XMLoadFloat3(&vertices[v3].position);
+
+			XMVECTOR edge12 = v2Pos - v1Pos;
+			XMVECTOR edge13 = v3Pos - v1Pos;
+
+			XMVECTOR normal = XMVector3Cross(edge12, edge13);
+
+			vertexNormals[v1] += normal;
+			vertexNormals[v2] += normal;
+			vertexNormals[v3] += normal;
+		}
+
+		for (int i=0; i < vertices.size(); ++i)
+		{
+			XMStoreFloat3(&vertices[i].normal, XMVector3Normalize(vertexNormals[i]));
+		}
+
+		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
+		vertexBufferData.pSysMem = vertices.data();
+		vertexBufferData.SysMemPitch = 0;
+		vertexBufferData.SysMemSlicePitch = 0;
+		
+		CD3D11_BUFFER_DESC vertexBufferDesc(
+			sizeof(VertexPosNorTexTanBin) * vertices.size(), 
+			D3D11_BIND_VERTEX_BUFFER
+		);
+
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateBuffer(
+				&vertexBufferDesc,
+				&vertexBufferData,
+				&m_vertexBuffer
+			)
+		);
+
 
 		D3D11_SUBRESOURCE_DATA indexData;
 		indexData.pSysMem = indices.data();
@@ -183,10 +216,12 @@ void TessPlanet::CreateDeviceDependentResources()
 		);
 
 
-
 		CD3D11_RASTERIZER_DESC rasterStateDesc(D3D11_DEFAULT);
 		rasterStateDesc.CullMode = D3D11_CULL_NONE;
 		rasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+
+		//rasterStateDesc.CullMode = D3D11_CULL_BACK;
+		//rasterStateDesc.FillMode = D3D11_FILL_SOLID;
 
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateRasterizerState(
@@ -255,7 +290,7 @@ void TessPlanet::Render()
 	);
 
 	// Each vertex is one instance of the VertexPositionColor struct.
-	UINT stride = sizeof(VertexPosition);
+	UINT stride = sizeof(VertexPosNorTexTanBin);
 	UINT offset = 0;
 	context->IASetVertexBuffers(
 		0,
@@ -325,8 +360,6 @@ void TessPlanet::Render()
 	);
 
 	
-
-	
 	context->RSSetState(m_rasterizerState.Get());
 
 	// Attach our pixel shader.
@@ -334,6 +367,14 @@ void TessPlanet::Render()
 		m_pixelShader.Get(),
 		nullptr,
 		0
+	);
+
+	context->PSSetConstantBuffers1(
+		0,
+		1,
+		m_cameraBuffer.GetAddressOf(),
+		nullptr,
+		nullptr
 	);
 
 	
