@@ -111,42 +111,80 @@ void TessPlanet::CreateDeviceDependentResources()
 
 		std::vector<VertexPosNorTexTanBin> vertices =
 		{
-			{ XMFLOAT3(0.000f,  0.000f,  1.000f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.894f,  0.000f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.276f,  0.851f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(-0.724f,  0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(-0.724f, -0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.276f, -0.851f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.724f,  0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(-0.276f,  0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(-0.894f,  0.000f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(-0.276f, -0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.724f, -0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
-			{ XMFLOAT3(0.000f,  0.000f, -1.000f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) }
+			//{ XMFLOAT3(0.000f,  0.000f,  1.000f), XMFLOAT3(0.4706881f,  0.341735349f,  0.7607089), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.894f,  0.000f,  0.447f), XMFLOAT3(0.4706881f,  0.341735349f,  0.7607089), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.276f,  0.851f,  0.447f), XMFLOAT3(0.4706881f,  0.341735349f,  0.7607089), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(-0.724f,  0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(-0.724f, -0.526f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.276f, -0.851f,  0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.724f,  0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(-0.276f,  0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(-0.894f,  0.000f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(-0.276f, -0.851f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.724f, -0.526f, -0.447f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			//{ XMFLOAT3(0.000f,  0.000f, -1.000f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) }
+
+			
+			{ XMFLOAT3( 0.000000, -1.000000,  0.000000), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.723600, -0.447215,  0.525720), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.276385, -0.447215,  0.850640), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.894425, -0.447215,  0.000000), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.276385, -0.447215, -0.850640), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.723600, -0.447215, -0.525720), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.276385,  0.447215,  0.850640), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.723600,  0.447215,  0.525720), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3(-0.723600,  0.447215, -0.525720), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.276385,  0.447215, -0.850640), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.894425,  0.447215,  0.000000), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+			{ XMFLOAT3( 0.000000,  1.000000,  0.000000), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT3(0.0f,  0.0f,  0.0f), XMFLOAT2(0.0f, 0.0f) },
+
 		};
 
 		std::vector<unsigned int> indices =
 		{
-			2, 1, 0,
-			3, 2, 0,
-			4, 3, 0,
-			5, 4, 0,
-			1, 5, 0,
-			11, 6, 7,
-			11, 7, 8,
-			11, 8, 9,
-			11, 9, 10,
-			11, 10, 6,
-			1, 2, 6,
-			2, 3, 7,
-			3, 4, 8,
-			4, 5, 9,
-			5, 1, 10,
-			2, 7, 6,
-			3, 8, 7,
-			4, 9, 8,
-			5, 10, 9,
-			1, 6, 10
+			//2, 1, 0,
+			//3, 2, 0,
+			//4, 3, 0,
+			//5, 4, 0,
+			//1, 5, 0,
+			//11, 6, 7,
+			//11, 7, 8,
+			//11, 8, 9,
+			//11, 9, 10,
+			//11, 10, 6,
+			//1, 2, 6,
+			//2, 3, 7,
+			//3, 4, 8,
+			//4, 5, 9,
+			//5, 1, 10,
+			//2, 7, 6,
+			//3, 8, 7,
+			//4, 9, 8,
+			//5, 10, 9,
+			//1, 6, 10
+
+
+			2, 	   1,      0,
+			5,	   0,	   1,
+			3,	   2,	   0,
+			4,	   3,	   0,
+			5,	   4,	   0,
+			10,	   5,	   1,
+			6,	   1,	   2,
+			7,	   2,	   3,
+			8,	   3,	   4,
+			9,	   4,	   5,
+			6,	  10,	   1,
+			7,	   6,	   2,
+			8,	   7,	   3,
+			9,	   8,	   4,
+			10,	   9,	   5,
+			11,	  10,	   6,
+			11,	   6,	   7,
+			11,	   7,	   8,
+			11,	   8,	   9,
+			11,	   9,	  10,
+
 		};
 		m_indexCount = indices.size();
 
@@ -217,11 +255,11 @@ void TessPlanet::CreateDeviceDependentResources()
 
 
 		CD3D11_RASTERIZER_DESC rasterStateDesc(D3D11_DEFAULT);
-		rasterStateDesc.CullMode = D3D11_CULL_NONE;
-		rasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
+		//rasterStateDesc.CullMode = D3D11_CULL_NONE;
+		//rasterStateDesc.FillMode = D3D11_FILL_WIREFRAME;
 
-		//rasterStateDesc.CullMode = D3D11_CULL_BACK;
-		//rasterStateDesc.FillMode = D3D11_FILL_SOLID;
+		rasterStateDesc.CullMode = D3D11_CULL_BACK;
+		rasterStateDesc.FillMode = D3D11_FILL_SOLID;
 
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateRasterizerState(
@@ -377,6 +415,8 @@ void TessPlanet::Render()
 		nullptr
 	);
 
+	std::vector<float> bf{ 0.f, 0.f, 0.f, 0.f };
+	context->OMSetBlendState(nullptr, bf.data(), 0xFFFFFFFF);
 	
 	context->DrawIndexed(m_indexCount, 0, 0);
 

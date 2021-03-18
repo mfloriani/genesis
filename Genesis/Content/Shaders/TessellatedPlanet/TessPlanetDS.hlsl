@@ -52,8 +52,10 @@ DS_OUTPUT main(
     float3 p = domain.x * patch[0].positionW + domain.y * patch[1].positionW + domain.z * patch[2].positionW;
     p = normalize(p);
     
-    Output.normal = domain.x * patch[0].normal + domain.y * patch[1].normal + domain.x * patch[2].normal;
-    Output.normal = normalize(Output.normal);
+    //Output.normal = domain.x * patch[0].normal + domain.y * patch[1].normal + domain.x * patch[2].normal;
+    //Output.normal = normalize(Output.normal);
+    
+    Output.normal = normalize(patch[0].normal);
     
     float4 pos = float4(p, 1);	
     pos = mul(pos, gModel);

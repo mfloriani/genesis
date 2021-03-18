@@ -50,7 +50,7 @@ HS_Input main(VS_Input input)
     output.tangent = normalize(mul(input.tangent, (float3x3) gModel));
     output.binormal = normalize(mul(input.binormal, (float3x3) gModel));
     output.textcoord = input.textcoord;
-    output.tessFactor = 1;//tessFactor;
+    output.tessFactor = tessFactor;
     
     return output;
 }
