@@ -59,6 +59,10 @@ HS_CONTROL_POINT_OUTPUT main(
 	// Insert code to compute Output here
 	Output.positionW = ip[i].positionW;
     Output.normal = ip[i].normal;
+    Output.tangent = ip[i].tangent;
+    Output.binormal = ip[i].binormal;
+    Output.textcoord = ip[i].textcoord;
+    Output.tessFactor = ip[i].tessFactor;
 
 	return Output;
 }

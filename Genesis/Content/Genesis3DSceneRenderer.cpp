@@ -80,6 +80,12 @@ void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
 {
 	if (QueryKeyPressed(VirtualKey::Escape))
 		CoreApplication::Exit();
+
+	if (QueryKeyPressed(VirtualKey::F1))
+		ToggleWireframeMode(true);
+
+	if (QueryKeyPressed(VirtualKey::F2))
+		ToggleWireframeMode(false);
 }
 
 void Genesis3DSceneRenderer::HandleCameraInput(DX::StepTimer const& timer)
@@ -126,6 +132,11 @@ void Genesis3DSceneRenderer::Render()
 {
 	m_starrySky->Render();
 	m_tessPlanet->Render();
+}
+
+void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
+{
+	m_tessPlanet->ToggleWireframeMode(onOff);
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()

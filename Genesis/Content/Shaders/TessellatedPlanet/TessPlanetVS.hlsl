@@ -13,6 +13,12 @@ cbuffer CameraCB : register(b1)
     float  padding;
 };
 
+cbuffer ObjectCB : register(b2)
+{
+    float3 gCenterPosW;
+    float padding2;
+};
+
 struct VS_Input
 {
     float3 position : POSITION;
@@ -32,17 +38,18 @@ struct HS_Input
     float tessFactor : TESS;
 };
 
-#define MAX_TESS_FACTOR 10
+#define MAX_TESS_FACTOR 64
 
 HS_Input main(VS_Input input)
 {
-    float4 pos = float4(input.position, 1.0);
+    float4 pos = float4(input.position, 1.0);    
+    float3 posW = mul(pos, gModel).xyz;
     
-    float3 posW = mul(pos, gModel);    
-    float distToCam = distance(posW, gCamEye);
+    float d = distance(gCenterPosW, gCamEye); // TODO: pass position, not (0,0,0)
     
-    float tessFactor = saturate(4.0 - distToCam) * 0.5;
-    tessFactor = 1.0 + tessFactor * (MAX_TESS_FACTOR - 1.0);
+    const float d0 = 10.0f; // max factor dist
+    const float d1 = 50.0f; // min factor dist
+    float tessFactor = 5.0f + ((64.0f - 5.0f) * saturate((d1 - d) / (d1 - d0)));
     
     HS_Input output;
     output.positionW = pos.xyz;

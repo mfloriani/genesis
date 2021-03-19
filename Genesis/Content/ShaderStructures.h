@@ -17,6 +17,11 @@ namespace Genesis
 		DirectX::XMFLOAT4 cameraPos;
 	};
 
+	struct ObjectCB
+	{
+		DirectX::XMFLOAT4 positionW;
+	};
+
 	
 	struct VertexPosition
 	{
@@ -32,4 +37,6 @@ namespace Genesis
 		DirectX::XMFLOAT3 binormal;
 		DirectX::XMFLOAT2 texcoord;
 	};
+
+
 }

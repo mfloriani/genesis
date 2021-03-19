@@ -21,6 +21,8 @@ namespace Genesis
 		void Update(DX::StepTimer const& timer);
 		void Render();
 		
+		void ToggleWireframeMode(bool onOff);
+
 	private:
 		void HandleInput(DX::StepTimer const& timer);
 		void HandleCameraInput(DX::StepTimer const& timer);
