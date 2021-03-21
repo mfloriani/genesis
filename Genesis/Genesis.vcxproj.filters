@@ -66,6 +66,7 @@
     </ClCompile>
     <ClCompile Include="Content\TessPlanet.cpp" />
     <ClCompile Include="Content\Util.cpp" />
+    <ClCompile Include="Content\Pottery.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -88,6 +89,7 @@
     </ClInclude>
     <ClInclude Include="Content\Util.h" />
     <ClInclude Include="Content\TessPlanet.h" />
+    <ClInclude Include="Content\Pottery.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -111,5 +113,9 @@
     <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetPS.hlsl" />
     <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetHS.hlsl" />
     <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetDS.hlsl" />
+    <FxCompile Include="Content\Shaders\Pottery\PotteryVS.hlsl" />
+    <FxCompile Include="Content\Shaders\Pottery\PotteryHS.hlsl" />
+    <FxCompile Include="Content\Shaders\Pottery\PotteryDS.hlsl" />
+    <FxCompile Include="Content\Shaders\Pottery\PotteryPS.hlsl" />
   </ItemGroup>
 </Project>

@@ -2,6 +2,9 @@
 
 namespace Genesis
 {
+
+	// Constant Buffer
+
 	// Constant buffer used to send MVP matrices to the vertex shader.
 	struct ModelViewProjCB
 	{
@@ -23,9 +26,12 @@ namespace Genesis
 	};
 
 	
+
+	// Vertex
+
 	struct VertexPosition
 	{
-		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 positon;
 	};
 
 	// Position, Normal, Texture, Tangent, Binormal

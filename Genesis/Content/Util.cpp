@@ -23,7 +23,7 @@ std::vector<VertexPosition> Genesis::GenerateRandomPointsOnSphere(int n, float r
         float y = r * static_cast<float>(sin(theta) * sin(phi));
         float z = r * static_cast<float>(cos(phi));
 
-        points[i].pos = DirectX::XMFLOAT3(x, y, z);
+        points[i].positon = DirectX::XMFLOAT3(x, y, z);
     }
 
     return points;

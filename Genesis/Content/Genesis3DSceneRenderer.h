@@ -2,10 +2,12 @@
 
 #include "..\Common\DeviceResources.h"
 #include "..\Common\StepTimer.h"
+
 #include "ShaderStructures.h"
 #include "Camera.h"
 #include "StarrySky.h"
 #include "TessPlanet.h"
+#include "Pottery.h"
 
 #include <memory>
 
@@ -33,9 +35,10 @@ namespace Genesis
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		ModelViewProjCB	m_MVPBufferData;
 
-		std::unique_ptr<Camera>    m_camera;
-		std::unique_ptr<StarrySky> m_starrySky;
+		std::unique_ptr<Camera>     m_camera;
+		std::unique_ptr<StarrySky>  m_starrySky;
 		std::unique_ptr<TessPlanet> m_tessPlanet;
+		std::unique_ptr<Pottery>    m_pottery;
 
 
 	};

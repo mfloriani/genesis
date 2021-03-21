@@ -18,6 +18,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_camera = std::make_unique<Camera>();
 	m_starrySky = std::make_unique<StarrySky>(deviceResources);
 	m_tessPlanet = std::make_unique<TessPlanet>(deviceResources);
+	m_pottery = std::make_unique<Pottery>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -74,6 +75,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 
 	m_starrySky->Update(timer, m_MVPBufferData);
 	m_tessPlanet->Update(timer, m_MVPBufferData, camEye);
+	m_pottery->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -132,21 +134,25 @@ void Genesis3DSceneRenderer::Render()
 {
 	m_starrySky->Render();
 	m_tessPlanet->Render();
+	m_pottery->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
 {
 	m_tessPlanet->ToggleWireframeMode(onOff);
+	m_pottery->ToggleWireframeMode(onOff);
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 {
 	m_starrySky->CreateDeviceDependentResources();
 	m_tessPlanet->CreateDeviceDependentResources();
+	m_pottery->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 {
 	m_starrySky->ReleaseDeviceDependentResources();
 	m_tessPlanet->ReleaseDeviceDependentResources();
+	m_pottery->ReleaseDeviceDependentResources();
 }
