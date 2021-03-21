@@ -90,6 +90,7 @@
     <ClInclude Include="Content\Util.h" />
     <ClInclude Include="Content\TessPlanet.h" />
     <ClInclude Include="Content\Pottery.h" />
+    <ClInclude Include="Content\PotteryData.data" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

@@ -254,6 +254,7 @@
     <ClInclude Include="Content\Camera.h" />
     <ClInclude Include="Common\DeviceResources.h" />
     <ClInclude Include="Content\Pottery.h" />
+    <ClInclude Include="Content\PotteryData.data" />
     <ClInclude Include="Content\TessPlanet.h" />
     <ClInclude Include="Content\Util.h" />
     <ClInclude Include="GenesisMain.h" />
