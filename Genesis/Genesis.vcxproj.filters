@@ -67,6 +67,8 @@
     <ClCompile Include="Content\TessPlanet.cpp" />
     <ClCompile Include="Content\Util.cpp" />
     <ClCompile Include="Content\Pottery.cpp" />
+    <ClCompile Include="Content\Flag.cpp" />
+    <ClCompile Include="Content\RayTracing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -91,6 +93,8 @@
     <ClInclude Include="Content\TessPlanet.h" />
     <ClInclude Include="Content\Pottery.h" />
     <ClInclude Include="Content\PotteryData.data" />
+    <ClInclude Include="Content\Flag.h" />
+    <ClInclude Include="Content\RayTracing.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -118,5 +122,11 @@
     <FxCompile Include="Content\Shaders\Pottery\PotteryHS.hlsl" />
     <FxCompile Include="Content\Shaders\Pottery\PotteryDS.hlsl" />
     <FxCompile Include="Content\Shaders\Pottery\PotteryPS.hlsl" />
+    <FxCompile Include="Content\Shaders\Flag\FlagVS.hlsl" />
+    <FxCompile Include="Content\Shaders\Flag\FlagPS.hlsl" />
+    <FxCompile Include="Content\Shaders\Flag\FlagHS.hlsl" />
+    <FxCompile Include="Content\Shaders\Flag\FlagDS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayTracing\RayTracingVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayTracing\RayTracingPS.hlsl" />
   </ItemGroup>
 </Project>

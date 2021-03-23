@@ -19,6 +19,8 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_starrySky = std::make_unique<StarrySky>(deviceResources);
 	m_tessPlanet = std::make_unique<TessPlanet>(deviceResources);
 	m_pottery = std::make_unique<Pottery>(deviceResources);
+	m_flag = std::make_unique<Flag>(deviceResources);
+	m_rayTracing = std::make_unique<RayTracing>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -76,6 +78,8 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_starrySky->Update(timer, m_MVPBufferData);
 	m_tessPlanet->Update(timer, m_MVPBufferData, camEye);
 	m_pottery->Update(timer, m_MVPBufferData, camEye);
+	//m_flag->Update(timer, m_MVPBufferData, camEye);
+	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -135,12 +139,15 @@ void Genesis3DSceneRenderer::Render()
 	m_starrySky->Render();
 	m_tessPlanet->Render();
 	m_pottery->Render();
+	//m_flag->Render();
+	m_rayTracing->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
 {
 	m_tessPlanet->ToggleWireframeMode(onOff);
 	m_pottery->ToggleWireframeMode(onOff);
+	m_flag->ToggleWireframeMode(onOff);
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
@@ -148,6 +155,8 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_starrySky->CreateDeviceDependentResources();
 	m_tessPlanet->CreateDeviceDependentResources();
 	m_pottery->CreateDeviceDependentResources();
+	m_flag->CreateDeviceDependentResources();
+	m_rayTracing->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -155,4 +164,6 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_starrySky->ReleaseDeviceDependentResources();
 	m_tessPlanet->ReleaseDeviceDependentResources();
 	m_pottery->ReleaseDeviceDependentResources();
+	m_flag->ReleaseDeviceDependentResources();
+	m_rayTracing->ReleaseDeviceDependentResources();
 }
