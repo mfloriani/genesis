@@ -3,11 +3,12 @@ static float nearPlane = 1.00;
 static float farPlane = 100.0;
 
 static float4 LightColor = float4(1, 1, 1, 1);
-static float3 LightPos = float3(0, 100, 0);
+static float3 LightPos = float3(0, 10, 2);
 
 static float4 sphereColor_1 = float4(1, 0, 0, 1); //sphere1 color
 static float4 sphereColor_2 = float4(0, 1, 0, 1); //sphere2 color
 static float4 sphereColor_3 = float4(1, 0, 1, 1); //sphere3 color
+static float4 cubeColor = float4(1, 1, 1, 1); //cube color
 static float shininess = 10;
 
 cbuffer ModelViewProjCB : register(b0)
@@ -40,18 +41,41 @@ struct Ray
 struct Sphere
 {
     float3 centre;
-    float rad2; // radius* radius
+    float rad2; // radius * radius
+    
+};
+
+struct Cube
+{
+    float3 mi;
+    float3 ma;
+};
+
+struct Material
+{
     float4 color;
     float Kd, Ks, Kr, shininess;
 };
 
-#define NOBJECTS 3
-static Sphere object[NOBJECTS] =
+
+#define NOBJECTS 4
+static Material materials[NOBJECTS] =
 {
-    { 0.0, 2.0, 0.0, 1.0, sphereColor_1, 0.3, 0.5, 0.7, shininess },
-    { 2.0, -2.0, 0.0, 1, sphereColor_2, 0.5, 0.7, 0.4, shininess },
-    { -2.0, 0.0, 1.0, 1, sphereColor_3, 0.5, 0.3, 0.3, shininess },
+    { sphereColor_1, 0.3, 0.5, 0.7, shininess },
+    { sphereColor_2, 0.5, 0.7, 0.4, shininess },
+    { sphereColor_3, 0.5, 0.3, 0.3, shininess },
+    { cubeColor, 0.5, 0.3, 0.3, shininess }, // cube
 };
+
+#define NOSPHERES 3
+static Sphere spheres[NOSPHERES] =
+{
+    { 0.0, 3.0, 0.0, 1.0 },
+    { 3.0, -2.0, 0.0, 1.0 },
+    { -3.0, 0.0, 1.0, 1.0 }
+};
+
+static Cube cube = { -1, -1, -1, 1, 1, 1 };
 
 float3 SphereNormal(Sphere s, float3 pos)
 {
@@ -84,15 +108,124 @@ float SphereIntersect(Sphere s, Ray ray, out bool hit)
     return t;
 }
 
-float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint)
+float3 get_normal(int face_hit)
+{
+    switch (face_hit)
+    {
+        case 0:
+            return (float3(-1, 0, 0)); // -x face
+        case 1:
+            return (float3(0, -1, 0)); // -y face
+        case 2:
+            return (float3(0, 0, -1)); // -z face
+        case 3:
+            return (float3(1, 0, 0)); // +x face
+        case 4:
+            return (float3(0, 1, 0)); // +y face
+        case 5:
+            return (float3(0, 0, 1)); // +z face
+    }
+    return (float3)0;
+
+}
+
+float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
+{
+    const double kEpsilon = 0.0001;
+    
+    float t = -1;
+    float3 p0 = cube.mi;
+    float3 p1 = cube.ma;
+    float3 o = ray.o;
+    float3 d = ray.d;
+    float3 t_min;
+    float3 t_max;
+
+    double a = 1.0 / d.x;
+    if(a >= 0){
+        t_min.x = (p0.x - o.x) * a;
+        t_max.x = (p1.x - o.x) * a; 
+    }
+    else{
+        t_min.x = (p1.x - o.x) * a;
+        t_max.x = (p0.x - o.x) * a;
+    }
+    double b = 1.0 / d.y;
+    if(b >= 0){
+        t_min.y = (p0.y - o.y) * b;
+        t_max.y = (p1.y - o.y) * b; 
+    }
+    else{
+        t_min.y = (p1.y - o.y) * b;
+        t_max.y = (p0.y - o.y) * b;
+    } 
+    double c = 1.0 / d.z;
+    if(c >= 0){
+        t_min.z = (p0.z - o.z) * c;
+        t_max.z = (p1.z - o.z) * c; 
+    }
+    else{
+        t_min.z = (p1.z - o.z) * c;
+        t_max.z = (p0.z - o.z) * c;
+    }
+    double t0, t1;
+    int face_in, face_out;
+    // finding largest
+    if(t_min.x > t_min.y){
+        t0 = t_min.x;
+        face_in = (a >= 0.0) ? 0 : 3;
+    }
+    else{
+        t0 = t_min.y;
+        face_in = (b >= 0.0) ? 1 : 4;
+    }
+    if(t_min.z > t0){
+        t0 = t_min.z;
+        face_in = (c >= 0.0) ? 2 : 5;
+    }
+    // find smallest
+    if(t_max.x < t_max.y){
+        t1 = t_max.x;
+        face_out = (a >= 0.0) ? 3 : 0;
+    }
+    else{
+        t1 = t_max.y;
+        face_out = (b >= 0.0) ? 4 : 1;
+    }
+    if(t_max.z < t1){
+        t1 = t_max.z;
+        face_out = (c >= 0.0) ? 5 : 2;
+    }
+    if(t0 < t1 && t1 > kEpsilon)
+    {
+        if(t0 > kEpsilon){
+            t = t0;
+            normal = get_normal(face_in);
+        }
+        else{
+            t = t1;
+            normal = get_normal(face_out);
+        }
+        //s.local_hit_point = ray.o + t*ray.d;
+        hit = true;
+        return t;
+    }
+    else
+    {
+        hit = false;
+        return t;
+    }
+}
+
+float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint, out float3 n)
 {
     mint = farPlane;
     hitobj = -1;
     anyhit = false;
-    for (int i = 0; i < NOBJECTS; i++)
+    for (int i = 0; i < NOSPHERES; i++)
     {
         bool hit = false;
-        float t = SphereIntersect(object[i], ray, hit);
+        float t = SphereIntersect(spheres[i], ray, hit);
         if (hit)
         {
             if (t < mint)
@@ -103,23 +236,40 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint)
             }
         }
     }
+    
+    bool hit = false;
+    float3 cn;
+    float2 uv;
+    float t = CubeIntersect(ray, cube, hit, cn);
+    if (hit)
+    {
+        if (t < mint)
+        {
+            hitobj = 3;
+            mint = t;
+            anyhit = true;
+            n = cn;
+        }
+    }
+    
     return ray.o + ray.d * mint;
 }
 
-bool AnyHit(Ray ray)
-{
-    bool anyhit = false;
-    for (int i = 0; i < NOBJECTS; i++)
-    {
-        bool hit;
-        float t = SphereIntersect(object[i], ray, hit);
-        if (hit)
-        {
-            anyhit = true;
-        }
-    }
-    return anyhit;
-}
+//bool AnyHit(Ray ray)
+//{
+//    bool anyhit = false;
+//    for (int i = 0; i < NOBJECTS; i++)
+//    {
+//        bool hit;
+//        float t = SphereIntersect(object[i], ray, hit);
+//        if (hit)
+//        {
+//            anyhit = true;
+//        }
+//    }
+    
+//    return anyhit;
+//}
 
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor)
 {
@@ -140,9 +290,9 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lig
     //    shadowFactor = 0.3;
 
     float3 lightDir = normalize(LightPos - hitPos);
-    float4 diff = object[hitobj].color * object[hitobj].Kd;
-    float4 spec = object[hitobj].color * object[hitobj].Ks;
-    return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, object[hitobj].shininess, diff, spec) * shadowFactor;
+    float4 diff = materials[hitobj].color * materials[hitobj].Kd;
+    float4 spec = materials[hitobj].color * materials[hitobj].Ks;
+    return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, materials[hitobj].shininess, diff, spec) * shadowFactor;
 }
 
 float4 RayTracing(Ray ray, out bool anyHit)
@@ -155,20 +305,27 @@ float4 RayTracing(Ray ray, out bool anyHit)
     float mint = 0.0f;
     anyHit = false;
 	
-    float3 i = NearestHit(ray, hitobj, hit, mint);
+    float3 i = NearestHit(ray, hitobj, hit, mint, n);
     
     for (int depth = 1; depth < 5; depth++)
     {
         if (hit)
         {
             anyHit = true;
-            n = SphereNormal(object[hitobj], i);
+            if (hitobj < 3)
+            {
+                n = SphereNormal(spheres[hitobj], i);
+            }
+            else
+            {
+                
+            }
             c += Shade(i, n, ray.d, hitobj, lightInensity);
 			// shoot refleced ray
-            lightInensity *= object[hitobj].Kr;
+            lightInensity *= materials[hitobj].Kr;
             ray.o = i;
             ray.d = reflect(ray.d, n);
-            i = NearestHit(ray, hitobj, hit, mint);
+            i = NearestHit(ray, hitobj, hit, mint, n);
         }
     }
     return float4(c.xyz, mint);
@@ -180,10 +337,9 @@ struct PS_Output
     float depth : SV_DEPTH;
 };
 
-//PS_Output main(VS_Quad input)
 float4 main(VS_Quad input) : SV_TARGET
 {
-    float dist2Imageplane = nearPlane;//   5.0;
+    float dist2Imageplane = nearPlane;
     float3 PixelPos = float3(input.canvasXY, -dist2Imageplane);
 
     Ray eyeray;
@@ -194,20 +350,7 @@ float4 main(VS_Quad input) : SV_TARGET
     float4 colorDistance = RayTracing(eyeray, anyHit);
     
     if (!anyHit)
-    //if (colorDistance.w > farPlane - EPSILON)
         discard;
     
-    //PS_Output output;
-    
-    //float3 surfacePoint = cameraPos + colorDistance.w * eyeray.d;
-
-    //float4 pv = mul(float4(surfacePoint, 1.0f), view);
-    //pv = mul(pv, projection);
-    //output.depth = pv.z / pv.w;
-
-    //output.color = float4(colorDistance.xyz, 1.0f);
-    //output.color = float4(lerp(output.color.xyz, float3(1.0f, 0.97255f, 0.86275f), 1.0 - exp(-0.0005 * colorDistance.w * colorDistance.w * colorDistance.w)), 1.0f);
-
     return float4(colorDistance.xyz, 1.0);
-    //return output;
 }

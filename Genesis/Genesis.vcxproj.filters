@@ -127,7 +127,6 @@
     <FxCompile Include="Content\Shaders\Flag\FlagHS.hlsl" />
     <FxCompile Include="Content\Shaders\Flag\FlagDS.hlsl" />
     <FxCompile Include="Content\Shaders\RayTracing\RayTracingVS.hlsl" />
-    <FxCompile Include="Content\Shaders\RayTracing\RayTracingPS_.hlsl" />
     <FxCompile Include="Content\Shaders\RayTracing\RayTracingPS.hlsl" />
   </ItemGroup>
 </Project>

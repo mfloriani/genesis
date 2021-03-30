@@ -21,7 +21,7 @@ void RayTracing::CreateDeviceDependentResources()
 {
 	auto loadVSTask = DX::ReadDataAsync(L"RayTracingVS.cso");
 	auto loadPSTask = DX::ReadDataAsync(L"RayTracingPS.cso");
-
+	
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateVertexShader(
