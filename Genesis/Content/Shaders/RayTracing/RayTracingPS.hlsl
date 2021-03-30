@@ -8,7 +8,11 @@ static float3 LightPos = float3(0, 10, 2);
 static float4 sphereColor_1 = float4(1, 0, 0, 1); //sphere1 color
 static float4 sphereColor_2 = float4(0, 1, 0, 1); //sphere2 color
 static float4 sphereColor_3 = float4(1, 0, 1, 1); //sphere3 color
-static float4 cubeColor = float4(1, 1, 1, 1); //cube color
+
+static float4 cubeColor_1 = float4(1, 1, 1, 1); //cube color
+static float4 cubeColor_2 = float4(0, 0, 1, 1); //cube color
+static float4 cubeColor_3 = float4(1, 1, 0, 1); //cube color
+
 static float shininess = 10;
 
 cbuffer ModelViewProjCB : register(b0)
@@ -57,14 +61,18 @@ struct Material
     float Kd, Ks, Kr, shininess;
 };
 
+static const int matOffsetSphere = 0;
+static const int matOffsetCube = 3;
 
-#define NOBJECTS 4
+#define NOBJECTS 6
 static Material materials[NOBJECTS] =
 {
     { sphereColor_1, 0.3, 0.5, 0.7, shininess },
     { sphereColor_2, 0.5, 0.7, 0.4, shininess },
     { sphereColor_3, 0.5, 0.3, 0.3, shininess },
-    { cubeColor, 0.5, 0.3, 0.3, shininess }, // cube
+    { cubeColor_1, 0.5, 0.3, 0.3, shininess },
+    { cubeColor_2, 0.5, 0.3, 0.3, shininess },
+    { cubeColor_3, 0.5, 0.3, 0.3, shininess },
 };
 
 #define NOSPHERES 3
@@ -75,7 +83,13 @@ static Sphere spheres[NOSPHERES] =
     { -3.0, 0.0, 1.0, 1.0 }
 };
 
-static Cube cube = { -1, -1, -1, 1, 1, 1 };
+#define NOCUBES 3
+static Cube cubes[NOCUBES] =
+{
+    { -1, -1, -1, 1, 1, 1 },
+    { 2, 3, 0, 3, 4, 1 },
+    { 0, 0, 2, 1, 1, 3 }
+};
 
 float3 SphereNormal(Sphere s, float3 pos)
 {
@@ -131,8 +145,6 @@ float3 get_normal(int face_hit)
 
 float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
 {
-    const double kEpsilon = 0.0001;
-    
     float t = -1;
     float3 p0 = cube.mi;
     float3 p1 = cube.ma;
@@ -196,9 +208,10 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         t1 = t_max.z;
         face_out = (c >= 0.0) ? 5 : 2;
     }
-    if(t0 < t1 && t1 > kEpsilon)
+    if (t0 < t1 && t1 > EPSILON)
     {
-        if(t0 > kEpsilon){
+        if (t0 > EPSILON)
+        {
             t = t0;
             normal = get_normal(face_in);
         }
@@ -206,7 +219,7 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
             t = t1;
             normal = get_normal(face_out);
         }
-        //s.local_hit_point = ray.o + t*ray.d;
+        //local_hit_point = ray.o + t*ray.d;
         hit = true;
         return t;
     }
@@ -230,25 +243,27 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint, out 
         {
             if (t < mint)
             {
-                hitobj = i;
+                hitobj = i;// + matOffsetSphere;
                 mint = t;
                 anyhit = true;
             }
         }
     }
     
-    bool hit = false;
-    float3 cn;
-    float2 uv;
-    float t = CubeIntersect(ray, cube, hit, cn);
-    if (hit)
+    for (int j = 0; j < NOCUBES; j++)
     {
-        if (t < mint)
+        bool hit = false;
+        float3 cn;
+        float t = CubeIntersect(ray, cubes[j], hit, cn);
+        if (hit)
         {
-            hitobj = 3;
-            mint = t;
-            anyhit = true;
-            n = cn;
+            if (t < mint)
+            {
+                hitobj = j + matOffsetCube;
+                mint = t;
+                anyhit = true;
+                n = cn;
+            }
         }
     }
     
@@ -312,16 +327,15 @@ float4 RayTracing(Ray ray, out bool anyHit)
         if (hit)
         {
             anyHit = true;
-            if (hitobj < 3)
+            
+            if (hitobj >= 0 && hitobj < 3)
             {
                 n = SphereNormal(spheres[hitobj], i);
             }
-            else
-            {
-                
-            }
+            
             c += Shade(i, n, ray.d, hitobj, lightInensity);
-			// shoot refleced ray
+			
+            // shoot refleced ray
             lightInensity *= materials[hitobj].Kr;
             ray.o = i;
             ray.d = reflect(ray.d, n);
@@ -330,12 +344,6 @@ float4 RayTracing(Ray ray, out bool anyHit)
     }
     return float4(c.xyz, mint);
 }
-
-struct PS_Output
-{
-    float4 color : SV_TARGET;
-    float depth : SV_DEPTH;
-};
 
 float4 main(VS_Quad input) : SV_TARGET
 {
