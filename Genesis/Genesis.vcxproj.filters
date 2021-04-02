@@ -69,6 +69,7 @@
     <ClCompile Include="Content\Pottery.cpp" />
     <ClCompile Include="Content\Flag.cpp" />
     <ClCompile Include="Content\RayTracing.cpp" />
+    <ClCompile Include="Content\ImplicitTerrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -95,6 +96,7 @@
     <ClInclude Include="Content\PotteryData.data" />
     <ClInclude Include="Content\Flag.h" />
     <ClInclude Include="Content\RayTracing.h" />
+    <ClInclude Include="Content\ImplicitTerrain.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -128,5 +130,8 @@
     <FxCompile Include="Content\Shaders\Flag\FlagDS.hlsl" />
     <FxCompile Include="Content\Shaders\RayTracing\RayTracingVS.hlsl" />
     <FxCompile Include="Content\Shaders\RayTracing\RayTracingPS.hlsl" />
+    <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainVS.hlsl" />
+    <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainPS.hlsl" />
+    <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainPS_2.hlsl" />
   </ItemGroup>
 </Project>

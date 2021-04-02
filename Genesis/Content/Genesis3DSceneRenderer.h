@@ -10,6 +10,7 @@
 #include "Pottery.h"
 #include "Flag.h"
 #include "RayTracing.h"
+#include "ImplicitTerrain.h"
 
 #include <memory>
 
@@ -37,12 +38,13 @@ namespace Genesis
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
 		ModelViewProjCB	m_MVPBufferData;
 
-		std::unique_ptr<Camera>     m_camera;
-		std::unique_ptr<StarrySky>  m_starrySky;
-		std::unique_ptr<TessPlanet> m_tessPlanet;
-		std::unique_ptr<Pottery>    m_pottery;
-		std::unique_ptr<Flag>       m_flag;
-		std::unique_ptr<RayTracing> m_rayTracing;
+		std::unique_ptr<Camera>          m_camera;
+		std::unique_ptr<StarrySky>       m_starrySky;
+		std::unique_ptr<TessPlanet>      m_tessPlanet;
+		std::unique_ptr<Pottery>         m_pottery;
+		std::unique_ptr<Flag>            m_flag;
+		std::unique_ptr<RayTracing>      m_rayTracing;
+		std::unique_ptr<ImplicitTerrain> m_implicitTerrain;
 
 
 	};

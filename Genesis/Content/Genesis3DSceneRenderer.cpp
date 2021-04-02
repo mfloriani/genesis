@@ -21,6 +21,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_pottery = std::make_unique<Pottery>(deviceResources);
 	m_flag = std::make_unique<Flag>(deviceResources);
 	m_rayTracing = std::make_unique<RayTracing>(deviceResources);
+	m_implicitTerrain = std::make_unique<ImplicitTerrain>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -39,12 +40,6 @@ void Genesis3DSceneRenderer::CreateWindowSizeDependentResources()
 	{
 		fovAngleY *= 2.0f;
 	}
-
-	// Note that the OrientationTransform3D matrix is post-multiplied here
-	// in order to correctly orient the scene to match the display orientation.
-	// This post-multiplication step is required for any draw calls that are
-	// made to the swap chain render target. For draw calls to other targets,
-	// this transform should not be applied.
 
 	// This sample makes use of a right-handed coordinate system using row-major matrices.
 	XMMATRIX perspectiveMatrix = XMMatrixPerspectiveFovRH(
@@ -80,6 +75,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_pottery->Update(timer, m_MVPBufferData, camEye);
 	//m_flag->Update(timer, m_MVPBufferData, camEye);
 	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
+	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -141,6 +137,7 @@ void Genesis3DSceneRenderer::Render()
 	m_pottery->Render();
 	//m_flag->Render();
 	m_rayTracing->Render();
+	m_implicitTerrain->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
@@ -148,6 +145,7 @@ void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
 	m_tessPlanet->ToggleWireframeMode(onOff);
 	m_pottery->ToggleWireframeMode(onOff);
 	m_flag->ToggleWireframeMode(onOff);
+	//m_implicitTerrain->ToggleWireframeMode(onOff);
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
@@ -157,6 +155,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_pottery->CreateDeviceDependentResources();
 	m_flag->CreateDeviceDependentResources();
 	m_rayTracing->CreateDeviceDependentResources();
+	m_implicitTerrain->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -166,4 +165,5 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_pottery->ReleaseDeviceDependentResources();
 	m_flag->ReleaseDeviceDependentResources();
 	m_rayTracing->ReleaseDeviceDependentResources();
+	m_implicitTerrain->ReleaseDeviceDependentResources();
 }

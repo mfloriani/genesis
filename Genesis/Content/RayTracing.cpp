@@ -123,6 +123,17 @@ void RayTracing::CreateDeviceDependentResources()
 			)
 		);
 
+		CD3D11_RASTERIZER_DESC rasterStateDesc(D3D11_DEFAULT);
+		rasterStateDesc.CullMode = D3D11_CULL_BACK;
+		rasterStateDesc.FillMode = D3D11_FILL_SOLID;
+
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateRasterizerState(
+				&rasterStateDesc,
+				m_rasterizerState.GetAddressOf()
+			)
+		);
+
 	});
 
 	createSkyTask.then([this]() {
@@ -143,6 +154,7 @@ void RayTracing::ReleaseDeviceDependentResources()
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
 	m_cameraBuffer.Reset();
+	m_rasterizerState.Reset();
 }
 
 void RayTracing::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
@@ -251,6 +263,8 @@ void RayTracing::Render()
 		nullptr,
 		nullptr
 	);
+
+	context->RSSetState(m_rasterizerState.Get());
 
 	// Attach our pixel shader.
 	context->PSSetShader(
