@@ -11,6 +11,7 @@
 #include "Flag.h"
 #include "RayTracing.h"
 #include "ImplicitTerrain.h"
+#include "RayMarching.h"
 
 #include <memory>
 
@@ -45,8 +46,7 @@ namespace Genesis
 		std::unique_ptr<Flag>            m_flag;
 		std::unique_ptr<RayTracing>      m_rayTracing;
 		std::unique_ptr<ImplicitTerrain> m_implicitTerrain;
-
-
+		std::unique_ptr<RayMarching>	 m_rayMarching;
 	};
 }
 

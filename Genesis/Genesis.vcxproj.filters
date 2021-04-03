@@ -70,6 +70,7 @@
     <ClCompile Include="Content\Flag.cpp" />
     <ClCompile Include="Content\RayTracing.cpp" />
     <ClCompile Include="Content\ImplicitTerrain.cpp" />
+    <ClCompile Include="Content\RayMarching.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -97,6 +98,7 @@
     <ClInclude Include="Content\Flag.h" />
     <ClInclude Include="Content\RayTracing.h" />
     <ClInclude Include="Content\ImplicitTerrain.h" />
+    <ClInclude Include="Content\RayMarching.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -133,5 +135,8 @@
     <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainVS.hlsl" />
     <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainPS.hlsl" />
     <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainPS_2.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingPS_2.hlsl" />
   </ItemGroup>
 </Project>

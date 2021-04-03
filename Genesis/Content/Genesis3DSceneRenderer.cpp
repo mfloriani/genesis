@@ -22,6 +22,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_flag = std::make_unique<Flag>(deviceResources);
 	m_rayTracing = std::make_unique<RayTracing>(deviceResources);
 	m_implicitTerrain = std::make_unique<ImplicitTerrain>(deviceResources);
+	m_rayMarching = std::make_unique<RayMarching>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -76,6 +77,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	//m_flag->Update(timer, m_MVPBufferData, camEye);
 	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
 	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
+	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -136,8 +138,9 @@ void Genesis3DSceneRenderer::Render()
 	m_tessPlanet->Render();
 	m_pottery->Render();
 	//m_flag->Render();
-	m_rayTracing->Render();
-	m_implicitTerrain->Render();
+	//m_rayTracing->Render();
+	//m_implicitTerrain->Render();
+	m_rayMarching->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
@@ -145,7 +148,6 @@ void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
 	m_tessPlanet->ToggleWireframeMode(onOff);
 	m_pottery->ToggleWireframeMode(onOff);
 	m_flag->ToggleWireframeMode(onOff);
-	//m_implicitTerrain->ToggleWireframeMode(onOff);
 }
 
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
@@ -156,6 +158,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_flag->CreateDeviceDependentResources();
 	m_rayTracing->CreateDeviceDependentResources();
 	m_implicitTerrain->CreateDeviceDependentResources();
+	m_rayMarching->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -166,4 +169,5 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_flag->ReleaseDeviceDependentResources();
 	m_rayTracing->ReleaseDeviceDependentResources();
 	m_implicitTerrain->ReleaseDeviceDependentResources();
+	m_rayMarching->ReleaseDeviceDependentResources();
 }
