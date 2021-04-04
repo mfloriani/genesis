@@ -137,6 +137,5 @@
     <FxCompile Include="Content\Shaders\ImplicitTerrain\ImplicitTerrainPS_2.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\RayMarchingVS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\RayMarchingPS.hlsl" />
-    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingPS_2.hlsl" />
   </ItemGroup>
 </Project>

@@ -55,7 +55,7 @@ void Genesis3DSceneRenderer::CreateWindowSizeDependentResources()
 		XMMatrixTranspose(perspectiveMatrix)
 	);
 
-	m_camera->LookAt(XMFLOAT3(0.0f, 0.7f, 1.5f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_camera->LookAt(XMFLOAT3(0.0f, 5.7f, 7.5f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
@@ -138,9 +138,9 @@ void Genesis3DSceneRenderer::Render()
 	m_tessPlanet->Render();
 	m_pottery->Render();
 	//m_flag->Render();
-	//m_rayTracing->Render();
-	//m_implicitTerrain->Render();
+	m_rayTracing->Render();
 	m_rayMarching->Render();
+	m_implicitTerrain->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)

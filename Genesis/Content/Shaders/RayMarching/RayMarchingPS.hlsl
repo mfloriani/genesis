@@ -53,11 +53,51 @@ static Light light =
     16.0
 };
 
-// union primitives 1 and 2
-// d1 is a vec2 where .x is the distance
+float2x2 rotate(float a)
+{
+    float s = sin(a);
+    float c = cos(a);
+    return float2x2(c, -s, s, c);
+}
+
+float dot2(in float2 v)
+{
+    return dot(v, v);
+}
+float dot2(in float3 v)
+{
+    return dot(v, v);
+}
+
+float rounding(in float d, in float h)
+{
+    return d - h;
+}
+
+// union 
 float4 opU(float4 d1, float4 d2)
 {
     return (d1.w < d2.w) ? d1 : d2;
+}
+
+// intersection
+float4 opI(float4 d1, float4 d2)
+{
+    return (d1.w > d2.w) ? d1 : d2;
+}
+
+// subtraction
+float4 opS(float4 d1, float4 d2)
+{
+    return (-d2.w < d1.w) ? d1 : float4(d2.xyz, -d2.w);
+}
+
+float3 twist(float3 p, float rep)
+{
+    float c = cos(rep * p.y + rep);
+    float s = sin(rep * p.y + rep);
+    float2x2 m = float2x2(c, -s, s, c);
+    return float3(mul(p.xz, m), p.y);
 }
 
 float softAbs2(float x, float a)
@@ -73,9 +113,76 @@ float softMax2(float x, float y, float a)
 {
     return 0.5 * (x + y + softAbs2(x - y, a));
 }
+
 float softMin2(float x, float y, float a)
 {
     return -0.5 * (-x - y + softAbs2(x - y, a));
+}
+
+
+float smoothU(float d1, float d2, float k)
+{
+    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return lerp(d2, d1, h) - k * h * (1.0 - h);
+}
+
+float smoothS(float d1, float d2, float k)
+{
+    float h = clamp(0.5 - 0.5 * (d2 + d1) / k, 0.0, 1.0);
+    return lerp(d2, -d1, h) + k * h * (1.0 - h);
+}
+
+float smoothI(float d1, float d2, float k)
+{
+    float h = clamp(0.5 - 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return lerp(d2, d1, h) + k * h * (1.0 - h);
+}
+
+
+float3 opRep(in float3 p, in float s)
+{
+    return fmod(p + s * 0.5, s) - s * 0.5;
+}
+
+float2 opRep(in float2 p, in float s)
+{
+    return fmod(p + s * 0.5, s) - s * 0.5;
+}
+
+float opExtrussion(in float3 p, in float sdf, in float h)
+{
+    float2 w = float2(sdf, abs(p.z) - h);
+    return min(max(w.x, w.y), 0.0) + length(max(w, 0.0));
+}
+
+
+float2 opRevolution(in float3 p, float w)
+{
+    return float2(length(p.xz) - w, p.y);
+}
+
+
+
+float sdPlane(float3 p)
+{
+    return p.y;
+}
+
+float sdLink(in float3 p, in float le, in float r1, in float r2)
+{
+    float3 q = float3(p.x, max(abs(p.y) - le, 0.0), p.z);
+    return length(float2(length(q.xy) - r1, q.z)) - r2;
+}
+
+float sdChain(in float3 pos, in float le, in float r1, in float r2)
+{
+    float ya = max(abs(frac(pos.y) - 0.5) - le, 0.0);
+    float yb = max(abs(frac(pos.y + 0.5) - 0.5) - le, 0.0);
+
+    float la = ya * ya - 2.0 * r1 * sqrt(pos.x * pos.x + ya * ya);
+    float lb = yb * yb - 2.0 * r1 * sqrt(pos.z * pos.z + yb * yb);
+    
+    return sqrt(dot(pos.xz, pos.xz) + r1 * r1 + min(la, lb)) - r2;
 }
 
 float sdSphere(float3 p, float s)
@@ -271,6 +378,95 @@ float sdOctahedron(float3 p, float s)
     return length(float3(q.x, q.y - s + k, q.z - k));
 }
 
+float sdPyramid(in float3 p, in float h)
+{
+    float m2 = h * h + 0.25;
+    
+    // symmetry
+    p.xz = abs(p.xz);
+    p.xz = (p.z > p.x) ? p.zx : p.xz;
+    p.xz -= 0.5;
+	
+    // project into face plane (2D)
+    float3 q = float3(p.z, h * p.y - 0.5 * p.x, h * p.x + 0.5 * p.y);
+   
+    float s = max(-q.x, 0.0);
+    float t = clamp((q.y - 0.5 * p.z) / (m2 + 0.25), 0.0, 1.0);
+    
+    float a = m2 * (q.x + s) * (q.x + s) + q.y * q.y;
+    float b = m2 * (q.x + 0.5 * t) * (q.x + 0.5 * t) + (q.y - m2 * t) * (q.y - m2 * t);
+    
+    float d2 = min(q.y, -q.x * m2 - q.y * 0.5) > 0.0 ? 0.0 : min(a, b);
+    
+    // recover 3D and scale, and add sign
+    return sqrt((d2 + q.z * q.z) / m2) * sign(max(q.z, -p.y));;
+}
+
+float sdPryamid4(float3 p, float3 h) // h = { cos a, sin a, height }
+{
+    // Tetrahedron = Octahedron - Cube
+    float box = sdBox(p - float3(0, -2.0 * h.z, 0), (float3)2.0 * h.z);
+ 
+    float d = 0.0;
+    d = max(d, abs(dot(p, float3(-h.x, h.y, 0))));
+    d = max(d, abs(dot(p, float3(h.x, h.y, 0))));
+    d = max(d, abs(dot(p, float3(0, h.y, h.x))));
+    d = max(d, abs(dot(p, float3(0, h.y, -h.x))));
+    float octa = d - h.z;
+    return max(-box, octa); // Subtraction
+}
+
+float sdCross(in float2 p, in float2 b, float r)
+{
+    p = abs(p);
+    p = (p.y > p.x) ? p.yx : p.xy;
+    
+    float2 q = p - b;
+    float k = max(q.y, q.x);
+    float2 w = (k > 0.0) ? q : float2(b.y - p.x, -k);
+    
+    return sign(k) * length(max(w, 0.0)) + r;
+}
+
+float udRoundBox(float3 p, float3 b, float r)
+{
+    return length(max(abs(p) - b, 0.0)) - r;
+}
+
+float sdCappedCone(in float3 p, in float h, in float r1, in float r2)
+{
+    float2 q = float2(length(p.xz), p.y);
+    
+    float2 k1 = float2(r2, h);
+    float2 k2 = float2(r2 - r1, 2.0 * h);
+    float2 ca = float2(q.x - min(q.x, (q.y < 0.0) ? r1 : r2), abs(q.y) - h);
+    float2 cb = q - k1 + k2 * clamp(dot(k1 - q, k2) / dot2(k2), 0.0, 1.0);
+    float s = (cb.x < 0.0 && ca.y < 0.0) ? -1.0 : 1.0;
+    return s * sqrt(min(dot2(ca), dot2(cb)));
+}
+
+float sdConeSection(in float3 p, in float h, in float r1, in float r2)
+{
+    float d1 = -p.y - h;
+    float q = p.y - h;
+    float si = 0.5 * (r1 - r2) / h;
+    float d2 = max(sqrt(dot(p.xz, p.xz) * (1.0 - si * si)) + q * si - r2, q);
+    return length(max(float2(d1, d2), 0.0)) + min(max(d1, d2), 0.);
+}
+
+float sdCapsule(float3 p, float3 a, float3 b, float r)
+{
+    float3 pa = p - a, ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h) - r;
+}
+
+float sdVerticalCapsule(float3 p, float h, float r)
+{
+    p.y -= clamp(p.y, 0.0, h);
+    return length(p) - r;
+}
+
 // returns xyz as color and w as distance
 float4 scene(float3 p)
 {
@@ -278,26 +474,172 @@ float4 scene(float3 p)
     
     //Ray Marched Implicit Geometric Primitives
     
-    d = opU(d, float4(1, 0, 0, sdCone(p - float3(0.0, 0.53f, 0.0), float3(0.16, 0.12, 0.06))));
-    //d = opU(d, sdTorus(p - float3(-0.3, 0.5f, -0.3), float2(0.04, 0.01)));
-    //d = opU(d, sdBox(p - float3(-0.3, 0.5f, 0.0), float3(0.05f, 0.05f, 0.05f)));
-    //d = opU(d, sdRoundBox(p - float3(-0.3, 0.5f, 0.3), float3(0.04f, 0.04f, 0.04f), 0.016));
-    //d = opU(d, sdEllipsoid(p - float3(0.3, 0.5f, -0.3), float3(0.05, 0.05, 0.02)));
-    //d = opU(d, sdTriPrism(p - float3(-0.6, 0.5f, -0.3), float2(0.05, 0.02)));
-    //d = opU(d, sdCylinder(p - float3(-0.6, 0.5f, 0.0), float3(0.002, -0.002, 0.0), float3(-0.02, 0.06, 0.02), 0.016));
-    //d = opU(d, sdCylinder(p - float3(-0.6, 0.5f, 0.3), float2(0.02, 0.04)));
-    //d = opU(d, sdOctahedron(p - float3(0.0, 0.5f, 0.6), 0.07));
-    //d = opU(d, sdHexPrism(p - float3(-0.3, 0.5f, 0.6), float2(0.05, 0.01)));
-    //d = opU(d, sdRoundCone(p - float3(-0.6, 0.5f, 0.6), 0.04, 0.02, 0.06));
     
-    float sphere1 = sdSphere(p - (float3(0, 5, 0) + float3(sin(time), 0, 0) * 2), 1.0);
-    float sphere2 = sdSphere(p - float3(2, 5, 0), 1.0);
+    
+    
+    float plane = dot(p, normalize(float3(1, 1, 1))) -2.5;
+    //d = opU(d, float4(1, 1, 1, plane));
+    float box = sdBox(p - float3(-0.3, 8.5f, -5.0), float3(1.05f, 1.05f, 1.05f));
+    box = abs(box) - .05; // hollow
+    d = opU(d, float4(1, 0, 1, max(plane, box)));
+    
+    
+    float waveBox = sdBox(p - float3(5.0, -8.5f, -5.0), float3(10.05f, 1.05f, 10.05f)) - sin(p.x * 7.5 + time * 3.)* .02;
+    d = opU(d, float4(0.4, 0.4, 1, waveBox));
+    
+    
+    
+    
+    
+    
+    float3 box2Pos = p - float3(10, 8, -8);
+    //box2Pos.x = abs(box2Pos.x);
+    //box2Pos.x -= 1.;
+    box2Pos = abs(box2Pos);
+    box2Pos -= 1.;
+    
+    float scale = lerp(1., 3., smoothstep(-1., 1., box2Pos.y));
+    box2Pos.xz *= scale;
+    //box2Pos.xz = mul(box2Pos.xz, rotate(box2Pos.y));
+    box2Pos.xz = mul(box2Pos.xz, rotate(smoothstep(0., 1., box2Pos.y)));
+    float box2 = sdBox(box2Pos, float3(1, 1, 1)) / scale;
+    d = opU(d, float4(1, 0.4, 0.2, box2));
+    
+    
+    
+    //const float le = 0.13, r1 = 0.2, r2 = 0.09;
+    //// make a chain out of sdLink's
+    //float3 a = p;
+    //a.y = frac(a.y) - 0.5;
+    //float3 b = p;
+    //b.y = frac(b.y + 0.5) - 0.5;
+    //// evaluate two links
+    //float chain = min(sdLink(a.xyz, le, r1, r2), sdLink(b.zyx, le, r1, r2));
+    //d = opU(d, float4(1, 1, 1, chain));
+    
+    
+    //float chain2 = sdChain(p - float3(10, 12, -5), le, r1, r2);
+    //d = opU(d, float4(1, 1, 1, chain2));
+    
+    
+    
+    
+    
+    
+    
+    
+   
+    
+    //sdTriPrism(p - float3(-25, 12, -35), float2(1.05, 1.02));
+    d = opU(d, float4(1, 0, 0, sdCone(p - float3(0.0, 5.53f, -5.0), float3(0.16, 0.12, 0.06))));
+    d = opU(d, float4(1, 1, 1, sdRoundBox(p - float3(-0.3, 3.5f, -5.3), float3(0.04f, 0.04f, 0.04f), 0.016)));
+    d = opU(d, float4(0, 1, 0, sdEllipsoid(p - float3(0.3, 3.5f, -5.3), float3(0.05, 0.05, 0.02))));
+    d = opU(d, float4(0.4, 0.3, 0.7, sdCylinder(p - float3(-0.6, 3.5f, -5.0), float3(0.002, -0.002, 0.0), float3(-0.02, 0.06, 0.02), 0.016)));
+    d = opU(d, float4(1, 0.5, 0.5, sdCylinder(p - float3(-0.6, 3.5f, -5.3), float2(0.02, 0.04))));
+    
+    d = opU(d, float4(0, 0.5, 0.8, sdHexPrism(p - float3(-0.3, 3.5f, -5.6), float2(0.05, 0.01))));
+    d = opU(d, float4(0.4, 0.1, 0.1, sdRoundCone(p - float3(-0.6, 3.5f, -5.6), 0.04, 0.02, 0.06)));
+    
+    float sphere1 = sdSphere(p - (float3(0, 5, -2) + float3(sin(time), 0, 0) * 2), 1.0);
+    float sphere2 = sdSphere(p - float3(2, 5, -2), 1.0);
     d = opU(d, float4(0, 0, 1, softMin2(sphere1, sphere2, 0.5)));
+    //d = opU(d, float4(0, 0, 1, smoothS(sphere1, sphere2, 0.5)));
+    
+    
+    float3 q = p - float3(3.0, 0.0, -5.0);
+    d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.5, 0.15), 0.1)));
+    
+    
+    
+    // planet with ring
+    {
+        float3 planetPos = p - float3(-70, 40, -75);
+        d = opU(d, float4(1, 0, 0, sdSphere(planetPos, 20.0)));
+        d = opU(d, float4(1, 1, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
+    }
+    
+    // vulcano
+    {
+        float3 basePos = float3(-20, 0, 5);
+        float baseDist = sdConeSection(basePos, 4.95, 4.9, 2.9);
+        
+        //float3 spherePos = basePos - float3(.0, 6.5 + sin(time) * 10., .0);
+        //float sphereDist = sdSphere(spherePos, 2.);
+        
+        //d = opU(d, float4(1, 0, 0, softMin2(baseDist, sphereDist, 0.5)));
+        d = opU(d, float4(1, 0, 0, baseDist));
+    }
+    
+    // portal box with deformed sphere inside
+    {
+        float roundBox = udRoundBox(p - float3(10.0, 0.2, 5.0), (float3) 1.55, 0.05);
+        float3 spherePos = p - float3(10.0, 0.2, 5.0);
+        float sphere = sdSphere(spherePos, 1.95);
+        float4 portalBox = opS(
+            float4(1, 1, 1, roundBox),
+            float4(1, 0, 1, sphere)
+        );
+        d = opU(d, portalBox);
+        
+        float deformedSphere = 0.5 * sdSphere(spherePos, 1.2) + 0.03 * sin(50.0 * p.x) * sin(50.0 * p.y + time * -5.) * sin(50.0 * p.z);
+        d = opU(d, float4(1, .2, 1, deformedSphere));
+    }
+    
+    // infinite repetition
+    {
+        float3 infPos = float3(abs(p.x), p.y + 25., abs(p.z));
+        infPos.xz = opRep(infPos.xz, 35.);
+        //float infSphere = sdSphere(infPos, 0.3);
+        float infDist = sdOctahedron(infPos, 1.07);
+        d = opU(d, float4(0.9, .9, 0, infDist));
+    }
+    
+    // flag
+    {
+        float3 flagPos = p - float3(55.0, 7.0, -85.0);
+        flagPos.z += sin(flagPos.x * 1.5 - time * 3.) * .1;
+        float flag = sdBox(flagPos, float3(10., 5., .1));
+        d = opU(d, float4(1, 1, 1, flag));
+    
+        float flagPost = sdCylinder(flagPos - float3(-10, -14, 0), float2(0.5, 20.04));
+        d = opU(d, float4(0.3, 0.3, 0.3, flagPost));
+    }
+    
+    // rocket
+    {
+        float3 conePos = p - float3(0.0, 0.0 + time, -25.0);
+        float coneDist = rounding(sdCappedCone(conePos, 1.4, 1.3, .05), 0.1);
+        
+        float3 cylinderPos = conePos - float3(.0, -6.5, .0);
+        float cylinderDist = sdCylinder(cylinderPos, float2(1.02, 5.04));
+        
+        float3 leftBoosterPos = cylinderPos - float3(-1.5, -.8, 0);
+        float leftBoosterdist = sdVerticalCapsule(leftBoosterPos, 3., .5);
+        
+        float body = softMin2(cylinderDist, leftBoosterdist, 0.5);
+        
+        float3 rightBoosterPos = cylinderPos - float3(1.5, -.8, 0);
+        float rightBoosterdist = sdVerticalCapsule(rightBoosterPos, 3., .5);
+        
+        body = softMin2(body, rightBoosterdist, 0.5);
+        
+        float3 basePos = cylinderPos - float3(.0, -6, .0);
+        float baseDist = sdConeSection(basePos, 1.95, 1.9, 0.9);
+        
+        d = opU(d, float4(.5, .5, .5,
+                softMin2(
+                    softMin2(coneDist, body, .5),
+                    baseDist,
+                    0.5
+                )
+        ));
+    }
+    
     
     return d;
 }
 
-float4 rayMarch(Ray r)
+float4 raymarch(Ray r)
 {
     float t = EPSILON;
     
@@ -311,20 +653,10 @@ float4 rayMarch(Ray r)
         t += cd.w; // w is distance
         
         if(t >= FAR_PLANE)
-            return float4(0, 0, 0, FAR_PLANE);
+            return float4(0, 0, 0, t);
     }
     return float4(0, 0, 0, FAR_PLANE);
 }
-
-/* from Art of Code
-float3 calcNormal(float3 p)
-{
-    float d = scene(p);
-    float2 e = float2(EPSILON, 0);
-    
-    return normalize(d - float3( scene(p - e.xyy), scene(p - e.yxy), scene(p - e.yyx) ));
-}
-*/
 
 float3 calcNormal(float3 p)
 {
@@ -355,14 +687,7 @@ float4 phong(float3 pos, float3 normal, float3 rayD, float4 color)
     return ambient + diffuse + specular;
 }
 
-//struct PS_Output
-//{
-//    float4 color : SV_TARGET;
-//    float depth : SV_DEPTH;
-//};
-
 float4 main(VS_Quad input) : SV_TARGET
-//PS_Output main(VS_Quad input)
 {
     float3 pixelPos = float3(input.canvasXY, -NEAR_PLANE);
     
@@ -370,7 +695,7 @@ float4 main(VS_Quad input) : SV_TARGET
     ray.o = mul(float4(0, 0, 0, 1.0f), invView);
     ray.d = normalize(mul(float4(pixelPos, 0.0f), invView));
     
-    float4 colorDist = rayMarch(ray);
+    float4 colorDist = raymarch(ray);
     
     if (colorDist.w > FAR_PLANE - EPSILON)
         discard;
@@ -378,22 +703,8 @@ float4 main(VS_Quad input) : SV_TARGET
     float3 pos = ray.o + ray.d * colorDist.w;
     
     light.position.xz += float2(sin(time), cos(time)) * 2.0;
-    /* from Youtube Art of Code
-    float3 n = calcNormal(pos);
-    float3 l = normalize(light.position - pos);    
-    float dif = dot(n, l);
-    float3 color = (float3) dif;
-    */
     
-    //PS_Output output;
-    
-    //float4 vPos = mul(float4(pos, 1.0f), view);
-    //vPos = mul(vPos, projection);
-    //output.depth = vPos.z / vPos.w;
-    
-    //output.color = phong(
     float4 color = phong(pos, calcNormal(pos), ray.d, float4(colorDist.xyz, 1.0));
     
     return color;
-    //return output;
 }
