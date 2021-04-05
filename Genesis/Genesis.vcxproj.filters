@@ -138,5 +138,6 @@
     <FxCompile Include="Content\Shaders\RayMarching\RayMarchingVS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\RayMarchingPS.hlsl" />
     <FxCompile Include="Content\Shaders\Pottery\PotteryGS.hlsl" />
+    <FxCompile Include="Content\Shaders\TessellatedPlanet\TessPlanetGS.hlsl" />
   </ItemGroup>
 </Project>

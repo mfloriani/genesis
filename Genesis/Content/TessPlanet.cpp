@@ -26,6 +26,7 @@ void TessPlanet::CreateDeviceDependentResources()
 	auto loadVSTask = DX::ReadDataAsync(L"TessPlanetVS.cso");
 	auto loadHSTask = DX::ReadDataAsync(L"TessPlanetHS.cso");
 	auto loadDSTask = DX::ReadDataAsync(L"TessPlanetDS.cso");
+	auto loadGSTask = DX::ReadDataAsync(L"TessPlanetGS.cso");
 	auto loadPSTask = DX::ReadDataAsync(L"TessPlanetPS.cso");
 
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
@@ -80,6 +81,17 @@ void TessPlanet::CreateDeviceDependentResources()
 		);
 	});
 
+	auto createGSTask = loadGSTask.then([this](const std::vector<byte>& fileData) {
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateGeometryShader(
+				&fileData[0],
+				fileData.size(),
+				nullptr,
+				&m_geometryShader
+			)
+		);
+	});
+
 	auto createPSTask = loadPSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreatePixelShader(
@@ -92,7 +104,7 @@ void TessPlanet::CreateDeviceDependentResources()
 	});
 
 
-	auto createSkyTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
+	auto createSkyTask = (createVSTask && createHSTask && createDSTask && createGSTask&& createPSTask).then([this]() {
 
 		// icosahedron
 #if 1
@@ -312,6 +324,7 @@ void TessPlanet::ReleaseDeviceDependentResources()
 	m_ready = false;
 	m_vertexShader.Reset();
 	m_inputLayout.Reset();
+	m_geometryShader.Reset();
 	m_pixelShader.Reset();
 	m_MVPBuffer.Reset();
 	m_cameraBuffer.Reset();
@@ -468,6 +481,7 @@ void TessPlanet::Render()
 	);
 
 	context->GSSetShader(
+		//m_geometryShader.Get(),
 		nullptr,
 		nullptr,
 		0

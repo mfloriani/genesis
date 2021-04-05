@@ -46,30 +46,57 @@ struct HS_CONSTANT_DATA_OUTPUT
 
 static float PI = 3.14159265359;
 
-float hash(float n)
-{
-    return frac(sin(n) * 43758.5453);
-}
+//float hash(float n)
+//{
+//    return frac(sin(n) * 43758.5453);
+//}
 
 
-float noise(float3 x)
-{
-    float3 p = floor(x);
-    float3 f = frac(x);
 
-    f = f * f * (3.0 - 2.0 * f);
-    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+//float noise(in float3 x)
+//{
+//    float3 p = floor(x);
+//    float3 f = frac(x);
+//    f = f * f * (3.0 - 2.0 * f);
+	
+//    return lerp(lerp(lerp(hash(p + float3(0, 0, 0)),
+//                        hash(p + float3(1, 0, 0)), f.x),
+//                   lerp(hash(p + float3(0, 1, 0)),
+//                        hash(p + float3(1, 1, 0)), f.x), f.y),
+//               lerp(lerp(hash(p + float3(0, 0, 1)),
+//                        hash(p + float3(1, 0, 1)), f.x),
+//                   lerp(hash(p + float3(0, 1, 1)),
+//                        hash(p + float3(1, 1, 1)), f.x), f.y), f.z);
+//}
 
-    return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
-		lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
-		lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
-			lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
-}
+//float hash(float3 p)
+//{
+//    p = frac(p * 0.3183099 + .1);
+//    p *= 17.0;
+//    return frac(p.x * p.y * p.z * (p.x + p.y + p.z));
+//}
+
+//float noise(float3 x)
+//{
+//    float3 p = floor(x);
+//    float3 f = frac(x);
+
+//    f = f * f * (3.0 - 2.0 * f);
+//    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+
+//    return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
+//		lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+//		lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
+//			lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+//}
+
 
 float rand(float2 co)
 {
     return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
+
+
 
 
 [domain("tri")]
@@ -93,11 +120,11 @@ DS_OUTPUT main(
     Output.binormal = normalize(Output.binormal);
     
     Output.textcoord = domain.x * patch[0].textcoord + domain.y * patch[1].textcoord + domain.z * patch[2].textcoord;
-    //Output.textcoord = normalize(Output.textcoord);
     
-    float height = rand(Output.positionW.xy);
-    //float height = noise(Output.positionW);
-    Output.positionW += Output.normal * height * 0.2;
+    
+    float height = rand(Output.positionW.xy);    
+    //Output.positionW += Output.normal * height * .07;        
+    Output.positionW += (height * .05);
     
     Output.camViewDir = normalize(gCamEye - Output.positionW);
     

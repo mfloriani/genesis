@@ -49,7 +49,7 @@ HS_Input main(VS_Input input)
     
     const float d0 = 1.0f; // max factor dist
     const float d1 = 60.0f; // min factor dist
-    float tessFactor = 5.0f + ((64.0f - 5.0f) * saturate((d1 - d) / (d1 - d0)));
+    float tessFactor = 2.0f + ((25.0f - 2.0f) * saturate((d1 - d) / (d1 - d0)));
     
     HS_Input output;
     output.positionW = pos.xyz;
