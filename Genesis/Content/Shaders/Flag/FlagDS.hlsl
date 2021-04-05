@@ -1,96 +1,104 @@
-#define NUM_CONTROL_POINTS 16
+#define NUM_CONTROL_POINTS 3
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
 cbuffer ModelViewProjCB : register(b0)
 {
-    matrix gModel;
-    matrix gView;
-    matrix gProj;
-    matrix gInvView;
+    matrix Model;
+    matrix View;
+    matrix Proj;
+    matrix InvView;
 };
 
 cbuffer CameraCB : register(b1)
 {
-    float3 gCamEye;
+    float3 eye;
     float padding;
+};
+
+cbuffer TimeCB : register(b2)
+{
+    float time;
+    float3 pad2;
 };
 
 struct DS_OUTPUT
 {
-    float4 positionH : SV_POSITION;
-    //float3 positionW : WORLDPOS;
+    float4 positionH  : SV_POSITION;
+    float3 positionW  : POSITION;
     float3 camViewDir : TEXCOORD1;
 };
 
 // Output control point
-struct HS_Output
+struct DS_Input
 {
-    float3 positionL : WORLDPOS;
+    float3 position : WORLDPOS;
 };
 
 // Output patch constant data.
 struct HS_CONSTANT_DATA_OUTPUT
 {
-    float EdgeTessFactor[4] : SV_TessFactor;
-    float InsideTessFactor[2] : SV_InsideTessFactor;
+    float EdgeTessFactor[3] : SV_TessFactor;
+    float InsideTessFactor : SV_InsideTessFactor;
 };
-
-
-float3 hermite(float u, float3 p0, float3 p1, float3 t0, float3 t1)
-{
-    float F1 = 2. * u * u * u - 3. * u * u + 1.;
-    float F2 = -2. * u * u * u + 3 * u * u;
-    float F3 = u * u * u - 2. * u * u + u;
-    float F4 = u * u * u - u * u;
-
-    float3 p = F1 * p0 + F2 * p1 + F3 * t0 + F4 * t1;
-    return p;
-}
-
 
 float4 BernsteinBasis(float t)
 {
     float invT = 1.0f - t;
-    return float4(invT * invT * invT,
-                   3.0f * t * invT * invT,
-                   3.0f * t * t * invT,
-                   t * t * t);
+
+    return float4(invT * invT * invT, 3.0f * t * invT * invT, 3.0f * t * t * invT, t * t * t);
 }
 
-float3 CubicBezierSum(const OutputPatch<HS_Output, NUM_CONTROL_POINTS> patch, float4 basisU, float4 basisV)
+float4 EvaluateCubicHermite(float4 basis)
 {
-    float3 sum = float3(0.0f, 0.0f, 0.0f);
-    sum = basisV.x * (basisU.x * patch[0].positionL + basisU.y * patch[1].positionL + basisU.z * patch[2].positionL + basisU.w * patch[3].positionL);
-    sum += basisV.y * (basisU.x * patch[4].positionL + basisU.y * patch[5].positionL + basisU.z * patch[6].positionL + basisU.w * patch[7].positionL);
-    sum += basisV.z * (basisU.x * patch[8].positionL + basisU.y * patch[9].positionL + basisU.z * patch[10].positionL + basisU.w * patch[11].positionL);
-    sum += basisV.w * (basisU.x * patch[12].positionL + basisU.y * patch[13].positionL + basisU.z * patch[14].positionL + basisU.w * patch[15].positionL);
-
-    return sum;
+    return float4(
+			basis.x + basis.y,
+			basis.y / 3.0,
+			-basis.z / 3.0,
+			basis.z + basis.w
+	);
 }
 
+float hash(float n)
+{
+    return frac(sin(n) * 43758.5453);
+}
 
+float noise(float3 x)
+{
+    float3 p = floor(x);
+    float3 f = frac(x);
 
-[domain("quad")]
+    f = f * f * (3.0 - 2.0 * f);
+    float n = p.x + p.y * 57.0 + 113.0 * p.z;
+
+    return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
+		lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
+		lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
+			lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
+}
+
+[domain("tri")]
 DS_OUTPUT main(
 	HS_CONSTANT_DATA_OUTPUT input,
-	float2 domain : SV_DomainLocation,
-	const OutputPatch<HS_Output, NUM_CONTROL_POINTS> patch)
+	float3 domain : SV_DomainLocation,
+	const OutputPatch<DS_Input, NUM_CONTROL_POINTS> patch)
 {
-    DS_OUTPUT Output;
+    DS_OUTPUT output;
 	
-    float4 basisU = BernsteinBasis(domain.x);
-    float4 basisV = BernsteinBasis(domain.y);
-    float3 p = CubicBezierSum(patch, basisU, basisV);
+    float4 basis = BernsteinBasis(domain.x);
+    output.positionW = EvaluateCubicHermite(basis);
     
+    //output.positionW += cos(output.positionW * time);
+    output.positionW += sin(output.positionW * time);
+    //output.positionW += noise(output.positionW * time);
     
-    Output.camViewDir = normalize(gCamEye - p);
+    output.camViewDir = normalize(eye - output.positionW);
     
-    float4 pos = float4(p, 1);
-    pos = mul(pos, gModel);
-    pos = mul(pos, gView);
-    pos = mul(pos, gProj);
-    
-    Output.positionH = pos;
+    float4 pos = float4(output.positionW, 1);
+    pos = mul(pos, Model);
+    pos = mul(pos, View);
+    pos = mul(pos, Proj);    
+    output.positionH = pos;
 	
-    return Output;
+    return output;
 }

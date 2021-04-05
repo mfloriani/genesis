@@ -74,7 +74,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_starrySky->Update(timer, m_MVPBufferData);
 	m_tessPlanet->Update(timer, m_MVPBufferData, camEye);
 	m_pottery->Update(timer, m_MVPBufferData, camEye);
-	//m_flag->Update(timer, m_MVPBufferData, camEye);
+	m_flag->Update(timer, m_MVPBufferData, camEye);
 	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
 	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
@@ -137,10 +137,10 @@ void Genesis3DSceneRenderer::Render()
 	m_starrySky->Render();
 	m_tessPlanet->Render();
 	m_pottery->Render();
-	//m_flag->Render();
-	m_rayTracing->Render();
-	m_rayMarching->Render();
-	m_implicitTerrain->Render();
+	m_flag->Render();
+	//m_rayTracing->Render();
+	//m_rayMarching->Render();
+	//m_implicitTerrain->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)

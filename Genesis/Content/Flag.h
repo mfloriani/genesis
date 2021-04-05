@@ -35,14 +35,14 @@ namespace Genesis
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	  m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		  m_MVPBuffer;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		  m_cameraBuffer;
-		Microsoft::WRL::ComPtr<ID3D11Buffer>		  m_objectBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		  m_timeBuffer;
 		Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
 
 		Transform m_transform;
 
 		ModelViewProjCB	m_MVPBufferData;
 		CameraCB	    m_cameraBufferData;
-		ObjectCB	    m_objectBufferData;
+		TimeCB	        m_timeBufferData;
 		bool            m_ready;
 		unsigned int    m_indexCount;
 		bool            m_wireframe;
