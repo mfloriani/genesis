@@ -128,8 +128,11 @@ float smoothU(float d1, float d2, float k)
 
 float smoothS(float d1, float d2, float k)
 {
-    float h = clamp(0.5 - 0.5 * (d2 + d1) / k, 0.0, 1.0);
-    return lerp(d2, -d1, h) + k * h * (1.0 - h);
+    //float h = clamp(0.5 - 0.5 * (d2 + d1) / k, 0.0, 1.0);
+    //return lerp(d2, -d1, h) + k * h * (1.0 - h);
+    
+    float h = max(k - abs(-d1 - d2), 0.0);
+    return max(-d1, d2) + h * h * 0.25 / k;
 }
 
 float smoothI(float d1, float d2, float k)
@@ -475,23 +478,32 @@ float4 scene(float3 p)
     //Ray Marched Implicit Geometric Primitives
     
     
+    // hollow box cut using plane
+    {        
+        float plane = dot(p, normalize(float3(1, 1, 1))) +6.5;
+        //d = opU(d, float4(1, 1, 1, plane));
+        float3 boxPos = p - float3(-20.3, 8.5f, -5.0);
+        float box = sdBox(boxPos, float3(4.05f, 4.05f, 4.05f));
+        box = abs(box) - .05; // hollow
+        d = opU(d, float4(0, .5, 1, max(plane, box)));
+        
+        
+        
+        d = opU(d, float4(1, 1, 0, sdTriPrism(boxPos - float3(3.3, .5, 0), float2(.1, 0.1))));
+        d = opU(d, float4(1, 0, 0, sdCone(boxPos - float3(1.0, .93f, .0), float3(.4, .4, .4))));
+        d = opU(d, float4(1, 1, 1, sdRoundBox(boxPos - float3(2.3, .5f, 0), float3(0.1f, 0.1f, 0.1f), 0.016)));
+        d = opU(d, float4(0, 1, 0, sdEllipsoid(boxPos - float3(3.6, .5f, 2), float3(0.1, 0.1, 0.1))));
+        d = opU(d, float4(0.4, 0.3, 0.7, sdCylinder(boxPos - float3(2.6, -.5f, 0.0), float3(0.052, -0.052, 0.0), float3(-0.52, 0.56, 0.52), 0.416)));
+        d = opU(d, float4(1, 0.5, 0.5, sdCylinder(boxPos - float3(-2.6, .5f, 2.6), float2(.12, .14))));
+        d = opU(d, float4(0, 0.5, 0.8, sdHexPrism(boxPos - float3(3.3, .5f, 3.6), float2(.15, .11))));
+        d = opU(d, float4(0.4, 0.1, 0.1, sdRoundCone(boxPos - float3(0.6, -.5f, 0.6), 0.24, 0.22, 0.26)));
+        
+    }
     
-    
-    float plane = dot(p, normalize(float3(1, 1, 1))) -2.5;
-    //d = opU(d, float4(1, 1, 1, plane));
-    float box = sdBox(p - float3(-0.3, 8.5f, -5.0), float3(1.05f, 1.05f, 1.05f));
-    box = abs(box) - .05; // hollow
-    d = opU(d, float4(1, 0, 1, max(plane, box)));
-    
-    
-    float waveBox = sdBox(p - float3(5.0, -8.5f, -5.0), float3(10.05f, 1.05f, 10.05f)) - sin(p.x * 7.5 + time * 3.)* .02;
-    d = opU(d, float4(0.4, 0.4, 1, waveBox));
-    
-    
-    
-    
-    
-    
+    float waveBox = sdRoundBox(p - float3(5.0, -28.5f, -5.0), float3(10.05f, 1.05f, 10.05f), 1.) - sin(p.x * 7.5 + time * 3.)* .02;
+    d = opU(d, float4(0.5, 0.5, 1, waveBox));
+        
+    /* clone objects using abs
     float3 box2Pos = p - float3(10, 8, -8);
     //box2Pos.x = abs(box2Pos.x);
     //box2Pos.x -= 1.;
@@ -504,50 +516,30 @@ float4 scene(float3 p)
     box2Pos.xz = mul(box2Pos.xz, rotate(smoothstep(0., 1., box2Pos.y)));
     float box2 = sdBox(box2Pos, float3(1, 1, 1)) / scale;
     d = opU(d, float4(1, 0.4, 0.2, box2));
+    */
     
+    {
+        float3 pos = float3(0, -15, -40);
+        float3 s1Pos = p - (pos);
+        float3 s2Pos = p - (pos - float3(sin(time) * 4., 0, 0));
+        float3 s3Pos = p - (pos - float3(0, sin(time) * 7., 0));
+        float3 s4Pos = p - (pos - float3(sin(time) * 2., 0, sin(time) * 2.));
+        
+        float s1Dist = sdSphere(s1Pos, 5.0 * 1 + sin(time));
+        float s2Dist = sdSphere(s2Pos, 5.0 * 1 + sin(time));
+        float s3Dist = sdSphere(s3Pos, 5.0 * 1 + sin(time));
+        float s4Dist = sdSphere(s4Pos, 5.0 * 1 + sin(time));
+        
+        float blend = softMin2(s1Dist, softMin2(s2Dist, softMin2(s3Dist, s4Dist, 0.9), 0.9), 0.9);
+        
+        d = opU(d, float4(.5, 0, .5, blend));
+    }
     
-    
-    //const float le = 0.13, r1 = 0.2, r2 = 0.09;
-    //// make a chain out of sdLink's
-    //float3 a = p;
-    //a.y = frac(a.y) - 0.5;
-    //float3 b = p;
-    //b.y = frac(b.y + 0.5) - 0.5;
-    //// evaluate two links
-    //float chain = min(sdLink(a.xyz, le, r1, r2), sdLink(b.zyx, le, r1, r2));
-    //d = opU(d, float4(1, 1, 1, chain));
-    
-    
-    //float chain2 = sdChain(p - float3(10, 12, -5), le, r1, r2);
-    //d = opU(d, float4(1, 1, 1, chain2));
-    
-    
-    
-    
-    
-    
-    
-    
-   
-    
-    //sdTriPrism(p - float3(-25, 12, -35), float2(1.05, 1.02));
-    d = opU(d, float4(1, 0, 0, sdCone(p - float3(0.0, 5.53f, -5.0), float3(0.16, 0.12, 0.06))));
-    d = opU(d, float4(1, 1, 1, sdRoundBox(p - float3(-0.3, 3.5f, -5.3), float3(0.04f, 0.04f, 0.04f), 0.016)));
-    d = opU(d, float4(0, 1, 0, sdEllipsoid(p - float3(0.3, 3.5f, -5.3), float3(0.05, 0.05, 0.02))));
-    d = opU(d, float4(0.4, 0.3, 0.7, sdCylinder(p - float3(-0.6, 3.5f, -5.0), float3(0.002, -0.002, 0.0), float3(-0.02, 0.06, 0.02), 0.016)));
-    d = opU(d, float4(1, 0.5, 0.5, sdCylinder(p - float3(-0.6, 3.5f, -5.3), float2(0.02, 0.04))));
-    
-    d = opU(d, float4(0, 0.5, 0.8, sdHexPrism(p - float3(-0.3, 3.5f, -5.6), float2(0.05, 0.01))));
-    d = opU(d, float4(0.4, 0.1, 0.1, sdRoundCone(p - float3(-0.6, 3.5f, -5.6), 0.04, 0.02, 0.06)));
-    
-    float sphere1 = sdSphere(p - (float3(0, 5, -2) + float3(sin(time), 0, 0) * 2), 1.0);
-    float sphere2 = sdSphere(p - float3(2, 5, -2), 1.0);
-    d = opU(d, float4(0, 0, 1, softMin2(sphere1, sphere2, 0.5)));
-    //d = opU(d, float4(0, 0, 1, smoothS(sphere1, sphere2, 0.5)));
-    
-    
-    float3 q = p - float3(3.0, 0.0, -5.0);
-    d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.5, 0.15), 0.1)));
+    // open close object
+    {
+        float3 q = p - float3(30.0, 10.0, -5.0);
+        d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.5, 0.15), 0.1)));
+    }
     
     
     
@@ -560,28 +552,36 @@ float4 scene(float3 p)
     
     // vulcano
     {
-        float3 basePos = float3(-20, 0, 5);
-        float baseDist = sdConeSection(basePos, 4.95, 4.9, 2.9);
+        float3 basePos = p - float3(-50, -20, 15);
+        float baseDist = sdConeSection(basePos, 7.95, 7.9, 2.9);
         
-        //float3 spherePos = basePos - float3(.0, 6.5 + sin(time) * 10., .0);
-        //float sphereDist = sdSphere(spherePos, 2.);
+        float3 spherePos = basePos - float3(.0, 8.5, .0);
+        float sphereDist = sdSphere(spherePos, 2.);
         
-        //d = opU(d, float4(1, 0, 0, softMin2(baseDist, sphereDist, 0.5)));
-        d = opU(d, float4(1, 0, 0, baseDist));
+        float volcano = smoothS(sphereDist, baseDist, 0.5);
+        
+        float rock = sdSphere(spherePos - float3(0, sin(time) * 10., 0), 0.75);
+        float rock2 = sdSphere(spherePos - float3(1, sin(time) * 8., 0), .55);
+        float rock3 = sdSphere(spherePos - float3(0, sin(time) * 15., 1), .35);
+        
+        float final = softMin2(volcano, softMin2(rock, softMin2(rock2, rock3, 0.5), 0.5), 0.5);
+        
+        d = opU(d, float4(1, 0, 0, final));
     }
+    
     
     // portal box with deformed sphere inside
     {
-        float roundBox = udRoundBox(p - float3(10.0, 0.2, 5.0), (float3) 1.55, 0.05);
-        float3 spherePos = p - float3(10.0, 0.2, 5.0);
-        float sphere = sdSphere(spherePos, 1.95);
+        float3 pos = p - float3(10.0, 0.2, 5.0);
+        float roundBox = udRoundBox(pos, (float3) 1.55, 0.05);
+        float sphere = sdSphere(pos, 1.95);
         float4 portalBox = opS(
             float4(1, 1, 1, roundBox),
             float4(1, 0, 1, sphere)
         );
         d = opU(d, portalBox);
         
-        float deformedSphere = 0.5 * sdSphere(spherePos, 1.2) + 0.03 * sin(50.0 * p.x) * sin(50.0 * p.y + time * -5.) * sin(50.0 * p.z);
+        float deformedSphere = 0.5 * sdSphere(pos, 1.2) + 0.03 * sin(50.0 * p.x) * sin(50.0 * p.y + time * -5.) * sin(50.0 * p.z);
         d = opU(d, float4(1, .2, 1, deformedSphere));
     }
     
