@@ -123,7 +123,7 @@ DS_OUTPUT main(
     
     
     float height = rand(Output.positionW.xy);    
-    //Output.positionW += Output.normal * height * .07;        
+    //Output.positionW += Output.normal * height * .07;
     Output.positionW += (height * .05);
     
     Output.camViewDir = normalize(gCamEye - Output.positionW);

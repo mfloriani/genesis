@@ -11,7 +11,7 @@ struct PS_Input
 
 static float3 gLightDir = float3(0.0, 1.0, 1.0);
 static float4 gLightAmb = float4(0.3, 0.3, 0.3, 1.0);
-static float4 gLightDiff = float4(0.8, .6, .6, 1.0);
+static float4 gLightDiff = float4(0.9, .7, .7, 1.0);
 
 float4 Shading( float3 normal, float3 toCamEye )
 {
