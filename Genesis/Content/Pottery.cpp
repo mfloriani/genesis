@@ -15,8 +15,8 @@ Pottery::Pottery(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_wireframe(false)
 {
 	// TODO: replace this fixed value
-	m_transform.position = XMFLOAT3(-50.0f, 0.0f, -50.0f);
-	m_transform.scale = XMFLOAT3(1.0f, 1.0f, 3.0f);
+	m_transform.position = XMFLOAT3(5.0f, 10.0f, -0.0f);
+	m_transform.scale = XMFLOAT3(.3f, 0.3f, 1.f);
 	m_transform.rotation = XMFLOAT3(-1.57f, 0.0f, 0.0f);
 
 }
@@ -30,6 +30,7 @@ void Pottery::CreateDeviceDependentResources()
 	auto loadVSTask = DX::ReadDataAsync(L"PotteryVS.cso");
 	auto loadHSTask = DX::ReadDataAsync(L"PotteryHS.cso");
 	auto loadDSTask = DX::ReadDataAsync(L"PotteryDS.cso");
+	auto loadGSTask = DX::ReadDataAsync(L"PotteryGS.cso");
 	auto loadPSTask = DX::ReadDataAsync(L"PotteryPS.cso");
 
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
@@ -80,6 +81,17 @@ void Pottery::CreateDeviceDependentResources()
 		);
 	});
 
+	auto createGSTask = loadGSTask.then([this](const std::vector<byte>& fileData) {
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateGeometryShader(
+				&fileData[0],
+				fileData.size(),
+				nullptr,
+				&m_geometryShader
+			)
+		);
+	});
+
 	auto createPSTask = loadPSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreatePixelShader(
@@ -90,8 +102,8 @@ void Pottery::CreateDeviceDependentResources()
 			)
 		);
 	});
-		
-	auto createPotteryTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
+	
+	auto createPotteryTask = (createVSTask && createHSTask && createDSTask && createGSTask  && createPSTask).then([this]() {
 
 		std::vector<VertexPosition> vertices = {
 
@@ -495,6 +507,7 @@ void Pottery::ReleaseDeviceDependentResources()
 	m_vertexBuffer.Reset();
 	m_hullShader.Reset();
 	m_domainShader.Reset();
+	m_geometryShader.Reset();
 	m_rasterizerState.Reset();
 }
 
@@ -638,7 +651,7 @@ void Pottery::Render()
 	);
 
 	context->GSSetShader(
-		nullptr,
+		m_geometryShader.Get(),
 		nullptr,
 		0
 	);

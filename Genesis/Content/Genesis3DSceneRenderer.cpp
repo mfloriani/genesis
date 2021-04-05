@@ -136,11 +136,11 @@ void Genesis3DSceneRenderer::Render()
 {
 	m_starrySky->Render();
 	m_tessPlanet->Render();
-	m_pottery->Render();
 	m_flag->Render();
-	//m_rayTracing->Render();
-	//m_rayMarching->Render();
-	//m_implicitTerrain->Render();
+	m_rayTracing->Render();
+	m_rayMarching->Render();
+	m_pottery->Render();
+	m_implicitTerrain->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)

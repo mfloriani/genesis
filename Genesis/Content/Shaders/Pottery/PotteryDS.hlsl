@@ -18,14 +18,15 @@ cbuffer CameraCB : register(b1)
 struct DS_OUTPUT
 {
     float4 positionH : SV_POSITION;
-    //float3 positionW : WORLDPOS;
+    float3 positionW : POSITION;
     float3 camViewDir : TEXCOORD1;
+    float2 uv : TEXCOORD2;
 };
 
 // Output control point
 struct HS_Output
 {
-    float3 positionL : WORLDPOS;
+    float3 position : WORLDPOS;
 };
 
 // Output patch constant data.
@@ -34,8 +35,6 @@ struct HS_CONSTANT_DATA_OUTPUT
     float EdgeTessFactor[4] : SV_TessFactor;
     float InsideTessFactor[2] : SV_InsideTessFactor;
 };
-
-
 
 float4 BernsteinBasis(float t)
 {
@@ -49,15 +48,13 @@ float4 BernsteinBasis(float t)
 float3 CubicBezierSum(const OutputPatch<HS_Output, NUM_CONTROL_POINTS> patch, float4 basisU, float4 basisV)
 {
     float3 sum = float3(0.0f, 0.0f, 0.0f);
-    sum = basisV.x * (basisU.x * patch[0].positionL + basisU.y * patch[1].positionL + basisU.z * patch[2].positionL + basisU.w * patch[3].positionL);
-    sum += basisV.y * (basisU.x * patch[4].positionL + basisU.y * patch[5].positionL + basisU.z * patch[6].positionL + basisU.w * patch[7].positionL);
-    sum += basisV.z * (basisU.x * patch[8].positionL + basisU.y * patch[9].positionL + basisU.z * patch[10].positionL + basisU.w * patch[11].positionL);
-    sum += basisV.w * (basisU.x * patch[12].positionL + basisU.y * patch[13].positionL + basisU.z * patch[14].positionL + basisU.w * patch[15].positionL);
+    sum = basisV.x * (basisU.x * patch[0].position + basisU.y * patch[1].position + basisU.z * patch[2].position + basisU.w * patch[3].position);
+    sum += basisV.y * (basisU.x * patch[4].position + basisU.y * patch[5].position + basisU.z * patch[6].position + basisU.w * patch[7].position);
+    sum += basisV.z * (basisU.x * patch[8].position + basisU.y * patch[9].position + basisU.z * patch[10].position + basisU.w * patch[11].position);
+    sum += basisV.w * (basisU.x * patch[12].position + basisU.y * patch[13].position + basisU.z * patch[14].position + basisU.w * patch[15].position);
 
     return sum;
 }
-
-
 
 [domain("quad")]
 DS_OUTPUT main(
@@ -74,8 +71,13 @@ DS_OUTPUT main(
     
     Output.camViewDir = normalize(gCamEye - p);
     
+    Output.uv = domain;
+    
     float4 pos = float4(p, 1);
     pos = mul(pos, gModel);
+    
+    Output.positionW = pos;
+    
     pos = mul(pos, gView);
     pos = mul(pos, gProj);
     

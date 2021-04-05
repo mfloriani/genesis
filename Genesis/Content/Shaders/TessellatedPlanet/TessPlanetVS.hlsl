@@ -47,8 +47,8 @@ HS_Input main(VS_Input input)
     
     float d = distance(gCenterPosW, gCamEye); // TODO: pass position, not (0,0,0)
     
-    const float d0 = 10.0f; // max factor dist
-    const float d1 = 50.0f; // min factor dist
+    const float d0 = 1.0f; // max factor dist
+    const float d1 = 60.0f; // min factor dist
     float tessFactor = 5.0f + ((64.0f - 5.0f) * saturate((d1 - d) / (d1 - d0)));
     
     HS_Input output;

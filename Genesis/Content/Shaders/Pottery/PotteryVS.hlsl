@@ -35,11 +35,10 @@ struct HS_Input
 HS_Input main(VS_Input input)
 {
     float4 pos = float4(input.positionL, 1.0);
-    //float3 posW = mul(pos, gModel).xyz;
     
     float d = distance(gCenterPosW, gCamEye);
-    const float d0 = 10.0f; // max factor dist
-    const float d1 = 50.0f; // min factor dist
+    const float d0 = 1.0f; // max factor dist
+    const float d1 = 5.f; // min factor dist
     float tessFactor = 1.0f + ((64.0f - 1.0f) * saturate((d1 - d) / (d1 - d0)));
     
     HS_Input output;

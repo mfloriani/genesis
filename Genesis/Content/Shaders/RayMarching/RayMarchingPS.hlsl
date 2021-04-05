@@ -537,7 +537,7 @@ float4 scene(float3 p)
     
     // open close object
     {
-        float3 q = p - float3(30.0, 10.0, -5.0);
+        float3 q = p - float3(-0.0, 10.0, -5.0);
         d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.5, 0.15), 0.1)));
     }
     
