@@ -17,8 +17,7 @@ Flag::Flag(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	// TODO: replace this fixed value
 	m_transform.position = XMFLOAT3(50.0f, 15.0f, -50.0f);
 	m_transform.scale = XMFLOAT3(13.f, 13.f, 13.f);
-	//m_transform.rotation = XMFLOAT3(-1.57f, 0.0f, 0.0f);
-
+	m_transform.rotation = XMFLOAT3(0.f, 0.0f, 0.0f);
 }
 
 Flag::~Flag()
@@ -525,17 +524,18 @@ void Flag::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& ca
 {
 	auto model = XMMatrixIdentity();
 
-	//m_transform.rotation.x += -0.05f * static_cast<float>(timer.GetElapsedSeconds());
-	//m_transform.rotation.y += 0.1f * static_cast<float>(timer.GetElapsedSeconds());
+	m_transform.rotation.x += -0.05f * static_cast<float>(timer.GetElapsedSeconds());
+	m_transform.rotation.y += 0.1f * static_cast<float>(timer.GetElapsedSeconds());
 
 	model = XMMatrixMultiply(model, DirectX::XMMatrixScaling(m_transform.scale.x, m_transform.scale.y, m_transform.scale.z));
-	//model = XMMatrixMultiply(
-	//	model,
-	//	DirectX::XMMatrixRotationQuaternion(
-	//		DirectX::XMQuaternionRotationRollPitchYaw(
-	//			m_transform.rotation.x, m_transform.rotation.y, m_transform.rotation.z)
-	//	)
-	//);
+	model = XMMatrixMultiply(
+		model,
+		DirectX::XMMatrixRotationQuaternion(
+			DirectX::XMQuaternionRotationRollPitchYaw(
+				m_transform.rotation.x, m_transform.rotation.y, m_transform.rotation.z)
+		)
+	);
+	
 	model = XMMatrixMultiply(model, DirectX::XMMatrixTranslation(m_transform.position.x, m_transform.position.y, m_transform.position.z));
 
 
