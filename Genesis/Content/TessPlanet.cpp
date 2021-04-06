@@ -309,7 +309,7 @@ void TessPlanet::CreateDeviceDependentResources()
 			)
 		);
 
-		ToggleWireframeMode(false);
+		ToggleWireframeMode(true);
 	});
 
 	createSkyTask.then([this]() {

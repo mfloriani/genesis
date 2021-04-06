@@ -8,7 +8,7 @@
 #include "StarrySky.h"
 #include "TessPlanet.h"
 #include "Pottery.h"
-#include "Flag.h"
+#include "NarrowStrip.h"
 #include "RayTracing.h"
 #include "ImplicitTerrain.h"
 #include "RayMarching.h"
@@ -43,7 +43,7 @@ namespace Genesis
 		std::unique_ptr<StarrySky>       m_starrySky;
 		std::unique_ptr<TessPlanet>      m_tessPlanet;
 		std::unique_ptr<Pottery>         m_pottery;
-		std::unique_ptr<Flag>            m_flag;
+		std::unique_ptr<NarrowStrip>     m_narrowStrip;
 		std::unique_ptr<RayTracing>      m_rayTracing;
 		std::unique_ptr<ImplicitTerrain> m_implicitTerrain;
 		std::unique_ptr<RayMarching>	 m_rayMarching;

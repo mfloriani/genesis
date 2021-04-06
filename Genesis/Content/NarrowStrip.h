@@ -9,11 +9,11 @@
 
 namespace Genesis
 {
-	class Flag
+	class NarrowStrip
 	{
 	public:
-		Flag(const std::shared_ptr<DX::DeviceResources>& deviceResources);
-		~Flag();
+		NarrowStrip(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+		~NarrowStrip();
 
 		void CreateDeviceDependentResources();
 		void ReleaseDeviceDependentResources();

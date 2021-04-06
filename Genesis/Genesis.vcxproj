@@ -253,7 +253,7 @@
     <ClInclude Include="App.h" />
     <ClInclude Include="Content\Camera.h" />
     <ClInclude Include="Common\DeviceResources.h" />
-    <ClInclude Include="Content\Flag.h" />
+    <ClInclude Include="Content\NarrowStrip.h" />
     <ClInclude Include="Content\ImplicitTerrain.h" />
     <ClInclude Include="Content\Pottery.h" />
     <ClInclude Include="Content\PotteryData.data" />
@@ -275,7 +275,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Content\Camera.cpp" />
     <ClCompile Include="Common\DeviceResources.cpp" />
-    <ClCompile Include="Content\Flag.cpp" />
+    <ClCompile Include="Content\NarrowStrip.cpp" />
     <ClCompile Include="Content\ImplicitTerrain.cpp" />
     <ClCompile Include="Content\Pottery.cpp" />
     <ClCompile Include="Content\RayMarching.cpp" />
@@ -309,7 +309,7 @@
     <FxCompile Include="Content\Shaders\DefaultVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="Content\Shaders\Flag\FlagDS.hlsl">
+    <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripDS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Domain</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Domain</ShaderType>
@@ -327,7 +327,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Domain</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Content\Shaders\Flag\FlagHS.hlsl">
+    <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripHS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Hull</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Hull</ShaderType>
@@ -345,7 +345,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Hull</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Content\Shaders\Flag\FlagPS.hlsl">
+    <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Pixel</ShaderType>
@@ -356,7 +356,7 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="Content\Shaders\Flag\FlagVS.hlsl">
+    <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Vertex</ShaderType>

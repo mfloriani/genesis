@@ -348,7 +348,7 @@ float4 main(PS_Input input) : SV_TARGET
     float bac = clamp(dot(normalize(float3(-SUN_DIR.x, 0.0, -SUN_DIR.z)), nor), 0.0, 1.0);
     float foc = clamp((pos.y + 100.0) / 100.0, 0.0, 1.0);
     float dom = clamp(0.5 + 0.5 * nor.y, 0.0, 1.0);
-    float3 lin = 1.0 * 0.2 * lerp(0.1 * float3(0.1, 0.2, 0.1), float3(0.7, 0.9, 1.5) * 3.0, dom) * foc;
+    float3 lin = 1.0 * 0.2 * lerp(0.1 * float3(0.1, 0.2, 0.1), float3(0.4, 0.4, .5) * 3.0, dom) * foc;
     lin += 1.0 * 8.5 * float3(1.0, 0.9, 0.8) * dif;
     lin += 1.0 * 0.27 * float3(1.0, 1.0, 1.0) * bac * foc;
 

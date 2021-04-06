@@ -53,6 +53,7 @@ static Light light =
     16.0
 };
 
+
 float2x2 rotate(float a)
 {
     float s = sin(a);
@@ -487,8 +488,6 @@ float4 scene(float3 p)
         box = abs(box) - .05; // hollow
         d = opU(d, float4(0, .5, 1, max(plane, box)));
         
-        
-        
         d = opU(d, float4(1, 1, 0, sdTriPrism(boxPos - float3(3.3, .5, 0), float2(.1, 0.1))));
         d = opU(d, float4(1, 0, 0, sdCone(boxPos - float3(1.0, .93f, .0), float3(.4, .4, .4))));
         d = opU(d, float4(1, 1, 1, sdRoundBox(boxPos - float3(2.3, .5f, 0), float3(0.1f, 0.1f, 0.1f), 0.016)));
@@ -518,6 +517,7 @@ float4 scene(float3 p)
     d = opU(d, float4(1, 0.4, 0.2, box2));
     */
     
+    // blending balls
     {
         float3 pos = float3(0, -15, -40);
         float3 s1Pos = p - (pos);
@@ -535,14 +535,6 @@ float4 scene(float3 p)
         d = opU(d, float4(.5, 0, .5, blend));
     }
     
-    // open close object
-    {
-        float3 q = p - float3(-0.0, 10.0, -5.0);
-        d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.5, 0.15), 0.1)));
-    }
-    
-    
-    
     // planet with ring
     {
         float3 planetPos = p - float3(-70, 40, -75);
@@ -550,7 +542,7 @@ float4 scene(float3 p)
         d = opU(d, float4(1, 1, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
     }
     
-    // vulcano
+    // volcano
     {
         float3 basePos = p - float3(-50, -20, 15);
         float baseDist = sdConeSection(basePos, 7.95, 7.9, 2.9);
@@ -569,6 +561,11 @@ float4 scene(float3 p)
         d = opU(d, float4(1, 0, 0, final));
     }
     
+    // open close object over volcano
+    {
+        float3 q = p - float3(-50, 5, 15);
+        d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.3, 0.15), 0.01)));
+    }
     
     // portal box with deformed sphere inside
     {
@@ -634,7 +631,6 @@ float4 scene(float3 p)
                 )
         ));
     }
-    
     
     return d;
 }

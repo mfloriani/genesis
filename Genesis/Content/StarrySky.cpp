@@ -83,20 +83,7 @@ void StarrySky::CreateDeviceDependentResources()
 
 	auto createSkyTask = (createVSTask && createGSTask && createPSTask).then([this]() {
 		
-		//m_indexCount = 8;
-		//std::vector<VertexPosition> vertices =
-		//{
-		//	{XMFLOAT3(-0.5f, -0.5f, -0.5f)},
-		//	{XMFLOAT3(-0.5f, -0.5f,  0.5f)},
-		//	{XMFLOAT3(-0.5f,  0.5f, -0.5f)},
-		//	{XMFLOAT3(-0.5f,  0.5f,  0.5f)},
-		//	{XMFLOAT3( 0.5f, -0.5f, -0.5f)}, 
-		//	{XMFLOAT3( 0.5f, -0.5f,  0.5f)}, 
-		//	{XMFLOAT3( 0.5f,  0.5f, -0.5f)}, 
-		//	{XMFLOAT3( 0.5f,  0.5f,  0.5f)} 
-		//};
-
-		m_indexCount = 15000; // number of stars
+		m_indexCount = 25000; // number of stars
 		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 100.0f);
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };

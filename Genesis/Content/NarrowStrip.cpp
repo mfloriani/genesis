@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Flag.h"
+#include "NarrowStrip.h"
 
 #include "..\Common\DirectXHelper.h"
 
@@ -11,7 +11,7 @@
 using namespace Genesis;
 using namespace DirectX;
 
-Flag::Flag(const std::shared_ptr<DX::DeviceResources>& deviceResources)
+NarrowStrip::NarrowStrip(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_wireframe(false)
 {
 	// TODO: replace this fixed value
@@ -20,16 +20,16 @@ Flag::Flag(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	m_transform.rotation = XMFLOAT3(0.f, 0.0f, 0.0f);
 }
 
-Flag::~Flag()
+NarrowStrip::~NarrowStrip()
 {
 }
 
-void Flag::CreateDeviceDependentResources()
+void NarrowStrip::CreateDeviceDependentResources()
 {
-	auto loadVSTask = DX::ReadDataAsync(L"FlagVS.cso");
-	auto loadHSTask = DX::ReadDataAsync(L"FlagHS.cso");
-	auto loadDSTask = DX::ReadDataAsync(L"FlagDS.cso");
-	auto loadPSTask = DX::ReadDataAsync(L"FlagPS.cso");
+	auto loadVSTask = DX::ReadDataAsync(L"NarrowStripVS.cso");
+	auto loadHSTask = DX::ReadDataAsync(L"NarrowStripHS.cso");
+	auto loadDSTask = DX::ReadDataAsync(L"NarrowStripDS.cso");
+	auto loadPSTask = DX::ReadDataAsync(L"NarrowStripPS.cso");
 
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
@@ -90,7 +90,7 @@ void Flag::CreateDeviceDependentResources()
 		);
 	});
 
-	auto createFlagTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
+	auto createNarrowStripTask = (createVSTask && createHSTask && createDSTask && createPSTask).then([this]() {
 
 		std::vector<VertexPosition> vertices = 
 		{
@@ -494,17 +494,17 @@ void Flag::CreateDeviceDependentResources()
 			)
 		);
 
-		ToggleWireframeMode(false);
+		ToggleWireframeMode(true);
 	});
 
-	createFlagTask.then([this]() {
+	createNarrowStripTask.then([this]() {
 
 		m_ready = true;
 	});
 
 }
 
-void Flag::ReleaseDeviceDependentResources()
+void NarrowStrip::ReleaseDeviceDependentResources()
 {
 	m_ready = false;
 	m_vertexShader.Reset();
@@ -520,7 +520,7 @@ void Flag::ReleaseDeviceDependentResources()
 	m_rasterizerState.Reset();
 }
 
-void Flag::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
+void NarrowStrip::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
 {
 	auto model = XMMatrixIdentity();
 
@@ -549,7 +549,7 @@ void Flag::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& ca
 	m_timeBufferData.time = static_cast<float>(timer.GetTotalSeconds());
 }
 
-void Flag::Render()
+void NarrowStrip::Render()
 {
 	if (!m_ready) return;
 
@@ -670,7 +670,7 @@ void Flag::Render()
 	context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void Genesis::Flag::ToggleWireframeMode(bool onOff)
+void Genesis::NarrowStrip::ToggleWireframeMode(bool onOff)
 {
 	m_wireframe = onOff;
 	m_rasterizerState.Reset();

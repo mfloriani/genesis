@@ -122,7 +122,7 @@ float SphereIntersect(Sphere s, Ray ray, out bool hit)
     return t;
 }
 
-float3 get_normal(int face_hit)
+float3 getNormal(int face_hit)
 {
     switch (face_hit)
     {
@@ -213,11 +213,11 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         if (t0 > EPSILON)
         {
             t = t0;
-            normal = get_normal(face_in);
+            normal = getNormal(face_in);
         }
         else{
             t = t1;
-            normal = get_normal(face_out);
+            normal = getNormal(face_out);
         }
         //local_hit_point = ray.o + t*ray.d;
         hit = true;

@@ -136,9 +136,10 @@ void RayTracing::CreateDeviceDependentResources()
 
 	});
 
-	createSkyTask.then([this]() {
-			
 
+
+	createSkyTask.then([this]() {
+		
 		m_ready = true;
 	});
 
