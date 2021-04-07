@@ -471,6 +471,12 @@ float sdVerticalCapsule(float3 p, float h, float r)
     return length(p) - r;
 }
 
+float sdCappedCylinder(float3 p, float2 h)
+{
+    float2 d = abs(float2(length(p.xz), p.y)) - h;
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+
 // returns xyz as color and w as distance
 float4 scene(float3 p)
 {
@@ -538,7 +544,7 @@ float4 scene(float3 p)
     // planet with ring
     {
         float3 planetPos = p - float3(-70, 40, -75);
-        d = opU(d, float4(1, 0, 0, sdSphere(planetPos, 20.0)));
+        d = opU(d, float4(0.6, 0, 0, sdSphere(planetPos, 20.0)));
         d = opU(d, float4(1, 1, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
     }
     
@@ -631,6 +637,71 @@ float4 scene(float3 p)
                 )
         ));
     }
+    
+    // satellite
+    {
+        float3 satPos = p - float3(10 + sin(time) * 100., 45.2, 30.0 + cos(time) * 100.);
+        
+        float satBox = sdBox(satPos, float3(.5, .7, .5));
+        float satLeftArm = sdBox(satPos - float3(-1, 0, 0), float3(1.2, .1, .1));        
+        float satRightArm = sdBox(satPos - float3(1, 0, 0), float3(1.2, .1, .1));        
+        float satLeftWing = sdHexPrism(satPos - float3(-3, 0, 0), float2(1.39, 0.05));        
+        float satRightWing = sdHexPrism(satPos - float3(3, 0, 0), float2(1.39, 0.05));
+        
+        float sat = softMin2(satBox, softMin2(satLeftArm, softMin2(satRightArm, softMin2(satLeftWing, satRightWing, 0.5), 0.5), 0.5), 0.5);
+        
+        d = opU(d, float4(.5, .5, .9, sat));
+    }
+    
+    // worm
+    {
+        float3 wormPos = p - float3(0, -10, 20);
+        
+        float baseDist = sdVerticalCapsule(wormPos, 10., 1.);        
+        float centerDist = sdVerticalCapsule(wormPos - float3(0, 10, 0), 10., 1.);
+        float headDist = sdSphere(wormPos - float3(0, 20, 0), 3);
+        float eyeHoleDist = sdSphere(wormPos - float3(0, 20, -3), .5);        
+        float eyeHoleSubDist = smoothS(eyeHoleDist, headDist, .5);
+        
+        float eyeDist = sdSphere(wormPos - float3(0, 20, -3), .5);
+        d = opU(d, float4(0, 0, 0, eyeDist));
+        
+        float eyeWhiteDist = sdSphere(wormPos - float3(0, 20, -3.5), .2);
+        d = opU(d, float4(1, 1, 1, eyeWhiteDist));
+        
+        
+        //d = min(d, rounding(sdCappedCylinder(wormPos, float2(0.4, 0.1)), 0.1));
+        
+        float wormDist = softMin2(baseDist, softMin2(centerDist, eyeHoleSubDist, .5), 0.5);
+        
+        d = opU(d, float4(.5, 0, .5, wormDist));
+    }
+    
+    // comet
+    {
+        float3 cometPos = p - float3(60, 50, 20 + time * -2.);
+        
+        float cometDist = sdSphere(cometPos, 2);
+        d = opU(d, float4(.5, .5, .5, cometDist));
+        
+        float smallCometDist1 = sdSphere(cometPos - float3(-2, 0, 2), .5);
+        d = opU(d, float4(.5, .5, .5, cometDist));
+        
+        float smallCometDist2 = sdSphere(cometPos - float3(-3, 2, 3), .5);
+        d = opU(d, float4(.5, .5, .5, smallCometDist2));
+        
+        float smallCometDist3 = sdSphere(cometPos - float3(3, 0, 2), .5);
+        d = opU(d, float4(.5, .5, .5, smallCometDist3));
+        
+        float smallCometDist4 = sdSphere(cometPos - float3(3, -4, 3), .5);
+        d = opU(d, float4(.5, .5, .5, smallCometDist4));
+        
+        float smallCometDist5 = sdSphere(cometPos - float3(3, 4, 4), .5);
+        d = opU(d, float4(.5, .5, .5, smallCometDist5));
+        
+    }
+    
+    
     
     return d;
 }

@@ -1,7 +1,10 @@
 ﻿#include "pch.h"
 #include "Genesis3DSceneRenderer.h"
+#include "AssetManager.h"
 
 #include "..\Common\DirectXHelper.h"
+
+#include <iostream>
 
 using namespace Genesis;
 
@@ -15,6 +18,14 @@ using namespace Windows::ApplicationModel::Core;
 Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceResources>& deviceResources) :
 	m_deviceResources(deviceResources)
 {
+	
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "noise.dds", "noise");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "noise2.dds", "noise2");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "gray_noise_64.dds", "gray_noise_64");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "gray_noise_256.dds", "gray_noise_256");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "rgba_noise_64.dds", "rgba_noise_64");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "rgba_noise_256.dds", "rgba_noise_256");
+
 	m_camera = std::make_unique<Camera>();
 	m_starrySky = std::make_unique<StarrySky>(deviceResources);
 	m_tessPlanet = std::make_unique<TessPlanet>(deviceResources);
@@ -23,6 +34,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_rayTracing = std::make_unique<RayTracing>(deviceResources);
 	m_implicitTerrain = std::make_unique<ImplicitTerrain>(deviceResources);
 	m_rayMarching = std::make_unique<RayMarching>(deviceResources);
+	m_rayMarchingSun = std::make_unique<RayMarchingSun>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -78,6 +90,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
 	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
+	m_rayMarchingSun->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -134,13 +147,14 @@ bool Genesis3DSceneRenderer::QueryKeyPressed(VirtualKey key)
 
 void Genesis3DSceneRenderer::Render()
 {
-	m_starrySky->Render();
-	m_tessPlanet->Render();
-	m_narrowStrip->Render();
-	m_rayTracing->Render();
-	m_rayMarching->Render();
-	m_pottery->Render();
-	m_implicitTerrain->Render();
+	//m_starrySky->Render();
+	//m_tessPlanet->Render();
+	//m_narrowStrip->Render();
+	//m_rayTracing->Render();
+	//m_rayMarching->Render();
+	//m_pottery->Render();
+	//m_implicitTerrain->Render();
+	m_rayMarchingSun->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
@@ -159,6 +173,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_rayTracing->CreateDeviceDependentResources();
 	m_implicitTerrain->CreateDeviceDependentResources();
 	m_rayMarching->CreateDeviceDependentResources();
+	m_rayMarchingSun->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -170,4 +185,5 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_rayTracing->ReleaseDeviceDependentResources();
 	m_implicitTerrain->ReleaseDeviceDependentResources();
 	m_rayMarching->ReleaseDeviceDependentResources();
+	m_rayMarchingSun->ReleaseDeviceDependentResources();
 }

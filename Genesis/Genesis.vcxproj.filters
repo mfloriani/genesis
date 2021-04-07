@@ -71,6 +71,9 @@
     <ClCompile Include="Content\ImplicitTerrain.cpp" />
     <ClCompile Include="Content\RayMarching.cpp" />
     <ClCompile Include="Content\NarrowStrip.cpp" />
+    <ClCompile Include="Content\RayMarchingSun.cpp" />
+    <ClCompile Include="Content\AssetManager.cpp" />
+    <ClCompile Include="Content\DDSTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -99,6 +102,9 @@
     <ClInclude Include="Content\ImplicitTerrain.h" />
     <ClInclude Include="Content\RayMarching.h" />
     <ClInclude Include="Content\NarrowStrip.h" />
+    <ClInclude Include="Content\RayMarchingSun.h" />
+    <ClInclude Include="Content\AssetManager.h" />
+    <ClInclude Include="Content\DDSTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -139,5 +145,14 @@
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripHS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripPS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingSunPS.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="Assets\noise.dds" />
+    <CopyFileToFolders Include="Assets\noise2.dds" />
+    <CopyFileToFolders Include="Assets\gray_noise_64.dds" />
+    <CopyFileToFolders Include="Assets\gray_noise_256.dds" />
+    <CopyFileToFolders Include="Assets\rgba_noise_64.dds" />
+    <CopyFileToFolders Include="Assets\rgba_noise_256.dds" />
   </ItemGroup>
 </Project>
