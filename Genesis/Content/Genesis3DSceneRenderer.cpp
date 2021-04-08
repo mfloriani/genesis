@@ -35,6 +35,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_implicitTerrain = std::make_unique<ImplicitTerrain>(deviceResources);
 	m_rayMarching = std::make_unique<RayMarching>(deviceResources);
 	m_rayMarchingSun = std::make_unique<RayMarchingSun>(deviceResources);
+	m_rayMarchingGalaxy = std::make_unique<RayMarchingGalaxy>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -91,6 +92,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingSun->Update(timer, m_MVPBufferData, camEye);
+	m_rayMarchingGalaxy->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -145,15 +147,21 @@ bool Genesis3DSceneRenderer::QueryKeyPressed(VirtualKey key)
 	return (CoreWindow::GetForCurrentThread()->GetKeyState(key) & CoreVirtualKeyStates::Down) == CoreVirtualKeyStates::Down;
 }
 
+void Genesis3DSceneRenderer::RenderToTexture()
+{
+	m_rayMarchingSun->RenderToTexture();
+}
+
 void Genesis3DSceneRenderer::Render()
 {
-	//m_starrySky->Render();
-	//m_tessPlanet->Render();
-	//m_narrowStrip->Render();
-	//m_rayTracing->Render();
-	//m_rayMarching->Render();
-	//m_pottery->Render();
-	//m_implicitTerrain->Render();
+	m_rayTracing->Render();
+	m_rayMarching->Render();
+	m_implicitTerrain->Render();
+	//m_rayMarchingGalaxy->Render();
+	m_pottery->Render();
+	m_narrowStrip->Render();
+	m_starrySky->Render();
+	m_tessPlanet->Render();
 	m_rayMarchingSun->Render();
 }
 
@@ -174,6 +182,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_implicitTerrain->CreateDeviceDependentResources();
 	m_rayMarching->CreateDeviceDependentResources();
 	m_rayMarchingSun->CreateDeviceDependentResources();
+	m_rayMarchingGalaxy->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -186,4 +195,5 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_implicitTerrain->ReleaseDeviceDependentResources();
 	m_rayMarching->ReleaseDeviceDependentResources();
 	m_rayMarchingSun->ReleaseDeviceDependentResources();
+	m_rayMarchingGalaxy->ReleaseDeviceDependentResources();
 }

@@ -234,5 +234,5 @@ void StarrySky::Render()
 	context->Draw(m_indexCount, 0);
 
 	// restore the original blending state
-	context->OMSetBlendState(m_additiveBlending.Get(), BlendFactor0.data(), SampleMask0);
+	context->OMSetBlendState(pBlendState0.Get(), BlendFactor0.data(), SampleMask0);
 }

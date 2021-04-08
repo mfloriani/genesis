@@ -74,6 +74,7 @@
     <ClCompile Include="Content\RayMarchingSun.cpp" />
     <ClCompile Include="Content\AssetManager.cpp" />
     <ClCompile Include="Content\DDSTextureLoader.cpp" />
+    <ClCompile Include="Content\RayMarchingGalaxy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -105,6 +106,7 @@
     <ClInclude Include="Content\RayMarchingSun.h" />
     <ClInclude Include="Content\AssetManager.h" />
     <ClInclude Include="Content\DDSTextureLoader.h" />
+    <ClInclude Include="Content\RayMarchingGalaxy.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -145,7 +147,11 @@
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripHS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripPS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripVS.hlsl" />
-    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingSunPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingGalaxyPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Sun\RayMarchingSunPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Sun\SunVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Sun\SunGS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Sun\SunPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\noise.dds" />

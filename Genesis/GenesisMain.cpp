@@ -57,6 +57,16 @@ bool GenesisMain::Render()
 		return false;
 	}
 
+	// 
+	// Render to Texture
+	// 
+	m_sceneRenderer->RenderToTexture();
+
+
+
+	// 
+	// Render to Screen
+	// 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	// Reset the viewport to target the whole screen.

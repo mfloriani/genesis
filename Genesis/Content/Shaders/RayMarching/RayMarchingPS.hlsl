@@ -653,6 +653,7 @@ float4 scene(float3 p)
         d = opU(d, float4(.5, .5, .9, sat));
     }
     
+    /*
     // worm
     {
         float3 wormPos = p - float3(0, -10, 20);
@@ -676,6 +677,7 @@ float4 scene(float3 p)
         
         d = opU(d, float4(.5, 0, .5, wormDist));
     }
+    */
     
     // comet
     {
