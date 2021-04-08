@@ -476,21 +476,12 @@ void NarrowStrip::CreateDeviceDependentResources()
 			)
 		);
 
-		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc2,
 				nullptr,
-				&m_cameraBuffer
-			)
-		);
-
-		CD3D11_BUFFER_DESC constantBufferDesc3(sizeof(TimeCB), D3D11_BIND_CONSTANT_BUFFER);
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&constantBufferDesc3,
-				nullptr,
-				&m_timeBuffer
+				&m_perFrameBuffer
 			)
 		);
 
@@ -511,8 +502,7 @@ void NarrowStrip::ReleaseDeviceDependentResources()
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();
 	m_MVPBuffer.Reset();
-	m_cameraBuffer.Reset();
-	m_timeBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
 	m_hullShader.Reset();
@@ -544,9 +534,10 @@ void NarrowStrip::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVEC
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
 
-	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
-
-	m_timeBufferData.time = static_cast<float>(timer.GetTotalSeconds());
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMVectorZero());
 }
 
 void NarrowStrip::Render()
@@ -567,20 +558,10 @@ void NarrowStrip::Render()
 	);
 
 	context->UpdateSubresource1(
-		m_cameraBuffer.Get(),
+		m_perFrameBuffer.Get(),
 		0,
 		NULL,
-		&m_cameraBufferData,
-		0,
-		0,
-		0
-	);
-
-	context->UpdateSubresource1(
-		m_timeBuffer.Get(),
-		0,
-		NULL,
-		&m_timeBufferData,
+		&m_perFrameBufferData,
 		0,
 		0,
 		0
@@ -636,15 +617,7 @@ void NarrowStrip::Render()
 	context->DSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-	);
-
-	context->DSSetConstantBuffers1(
-		2,
-		1,
-		m_timeBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);

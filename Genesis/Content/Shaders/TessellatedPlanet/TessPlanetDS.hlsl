@@ -7,10 +7,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix gInvView;
 };
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
-    float3 gCamEye;
-    float padding;
+    float3 eye;
+    float  pad1;
+    float  time;
+    float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 struct DS_OUTPUT
@@ -46,57 +50,11 @@ struct HS_CONSTANT_DATA_OUTPUT
 
 static float PI = 3.14159265359;
 
-//float hash(float n)
-//{
-//    return frac(sin(n) * 43758.5453);
-//}
-
-
-
-//float noise(in float3 x)
-//{
-//    float3 p = floor(x);
-//    float3 f = frac(x);
-//    f = f * f * (3.0 - 2.0 * f);
-	
-//    return lerp(lerp(lerp(hash(p + float3(0, 0, 0)),
-//                        hash(p + float3(1, 0, 0)), f.x),
-//                   lerp(hash(p + float3(0, 1, 0)),
-//                        hash(p + float3(1, 1, 0)), f.x), f.y),
-//               lerp(lerp(hash(p + float3(0, 0, 1)),
-//                        hash(p + float3(1, 0, 1)), f.x),
-//                   lerp(hash(p + float3(0, 1, 1)),
-//                        hash(p + float3(1, 1, 1)), f.x), f.y), f.z);
-//}
-
-//float hash(float3 p)
-//{
-//    p = frac(p * 0.3183099 + .1);
-//    p *= 17.0;
-//    return frac(p.x * p.y * p.z * (p.x + p.y + p.z));
-//}
-
-//float noise(float3 x)
-//{
-//    float3 p = floor(x);
-//    float3 f = frac(x);
-
-//    f = f * f * (3.0 - 2.0 * f);
-//    float n = p.x + p.y * 57.0 + 113.0 * p.z;
-
-//    return lerp(lerp(lerp(hash(n + 0.0), hash(n + 1.0), f.x),
-//		lerp(hash(n + 57.0), hash(n + 58.0), f.x), f.y),
-//		lerp(lerp(hash(n + 113.0), hash(n + 114.0), f.x),
-//			lerp(hash(n + 170.0), hash(n + 171.0), f.x), f.y), f.z);
-//}
-
 
 float rand(float2 co)
 {
     return frac(sin(dot(co.xy, float2(12.9898, 78.233))) * 43758.5453);
 }
-
-
 
 
 [domain("tri")]
@@ -126,7 +84,7 @@ DS_OUTPUT main(
     //Output.positionW += Output.normal * height * .07;
     Output.positionW += (height * .05);
     
-    Output.camViewDir = normalize(gCamEye - Output.positionW);
+    Output.camViewDir = normalize(eye - Output.positionW);
     
     float4 pos = float4(Output.positionW, 1);
     pos = mul(pos, gModel);

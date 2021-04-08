@@ -11,8 +11,9 @@ using namespace Genesis;
 using namespace DirectX;
 
 RayMarchingSun::RayMarchingSun(const std::shared_ptr<DX::DeviceResources>& deviceResources)
-	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_position(0.f, 15.f, -10.f)
+	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0)
 {
+	m_transform.position = XMFLOAT3(0.f, 15.f, -10.f);
 	m_noiseTexture = AssetManager::Get().GetTexture("rgba_noise_256");
 }
 
@@ -158,23 +159,15 @@ void RayMarchingSun::CreateDeviceDependentResources()
 			)
 		);
 
-		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc2,
 				nullptr,
-				&m_cameraBuffer
+				&m_perFrameBuffer
 			)
 		);
 
-		CD3D11_BUFFER_DESC constantBufferDesc3(sizeof(TimeCB), D3D11_BIND_CONSTANT_BUFFER);
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&constantBufferDesc3,
-				nullptr,
-				&m_timeBuffer
-			)
-		);
 
 		CD3D11_RASTERIZER_DESC rasterStateDesc(D3D11_DEFAULT);
 		rasterStateDesc.CullMode = D3D11_CULL_BACK;
@@ -199,7 +192,7 @@ void RayMarchingSun::CreateDeviceDependentResources()
 
 
 		// TODO: solve this fixed values
-		UINT width = 1200;
+		UINT width = 900;
 		UINT height = 900;
 
 		D3D11_TEXTURE2D_DESC texDesc{};
@@ -252,7 +245,7 @@ void RayMarchingSun::CreateDeviceDependentResources()
 
 		// Quad vertex buffer
 		{
-			std::vector<VertexPosition> vertices = { { m_position } };
+			std::vector<VertexPosition> vertices = { { m_transform.position } };
 
 			D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 			vertexBufferData.pSysMem = vertices.data();
@@ -313,8 +306,7 @@ void RayMarchingSun::ReleaseDeviceDependentResources()
 	m_MVPBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
-	m_cameraBuffer.Reset();
-	m_timeBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_rasterizerState.Reset();
 }
 
@@ -325,22 +317,23 @@ void RayMarchingSun::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XM
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
 
-	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
-
-	m_timeBufferData.time = static_cast<float>(timer.GetTotalSeconds());
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMLoadFloat3(&m_transform.position));
 }
 
 void RayMarchingSun::RenderToTexture()
 {
+	if (!m_ready) return;
+
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
 	ID3D11RenderTargetView* const targets[1] = { m_renderTargetView.Get() };
 	context->OMSetRenderTargets(1, targets, nullptr);
-	context->ClearRenderTargetView(m_deviceResources->GetBackBufferRenderTargetView(), DirectX::Colors::Aqua);
-	//context->ClearDepthStencilView(m_depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearRenderTargetView(m_renderTargetView.Get(), DirectX::Colors::Black);
 	context->RSSetViewports(1, &m_viewportTexture);
 
-	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(
 		m_MVPBuffer.Get(),
 		0,
@@ -352,20 +345,10 @@ void RayMarchingSun::RenderToTexture()
 	);
 
 	context->UpdateSubresource1(
-		m_cameraBuffer.Get(),
+		m_perFrameBuffer.Get(),
 		0,
 		NULL,
-		&m_cameraBufferData,
-		0,
-		0,
-		0
-	);
-
-	context->UpdateSubresource1(
-		m_timeBuffer.Get(),
-		0,
-		NULL,
-		&m_timeBufferData,
+		&m_perFrameBufferData,
 		0,
 		0,
 		0
@@ -433,15 +416,7 @@ void RayMarchingSun::RenderToTexture()
 	context->PSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-	);
-
-	context->PSSetConstantBuffers1(
-		2,
-		1,
-		m_timeBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);

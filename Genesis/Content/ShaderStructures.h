@@ -5,7 +5,6 @@ namespace Genesis
 
 	// Constant Buffer
 
-	// Constant buffer used to send MVP matrices to the vertex shader.
 	struct ModelViewProjCB
 	{
 		DirectX::XMFLOAT4X4 model;
@@ -14,24 +13,12 @@ namespace Genesis
 		DirectX::XMFLOAT4X4 invView;
 	};
 
-	// Constant buffer used to send MVP matrices to the vertex shader.
-	struct CameraCB
+	struct PerFrameCB
 	{
-		DirectX::XMFLOAT4 cameraPos;		
-	};
-
-	struct TimeCB
-	{
-		FLOAT			  time;
-		DirectX::XMFLOAT3 pad;
-	};
-
-	struct ObjectCB
-	{
+		DirectX::XMFLOAT4 cameraPos;
+		DirectX::XMFLOAT4 time;
 		DirectX::XMFLOAT4 positionW;
 	};
-
-	
 
 	// Vertex
 

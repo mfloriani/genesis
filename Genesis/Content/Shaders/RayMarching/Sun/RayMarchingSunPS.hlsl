@@ -6,22 +6,18 @@ cbuffer ModelViewProjCB : register(b0)
     matrix invView;
 }
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
     float3 eye;
-    float pad;
-};
-
-cbuffer TimeCB : register(b2)
-{
-    float time;
+    float  pad1;
+    float  time;
     float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 Texture2D NoiseTexture : register(t0);
 SamplerState SamplerTex : register(s0);
-
-static const float3 sunPos = float3(0.0, 10., -10.0);
 
 struct VS_Quad
 {
@@ -52,7 +48,7 @@ float rand(float2 co)
 #define NoiseSteps 4
 #define NoiseAmplitude 0.08
 #define NoiseFrequency 48.0
-#define Animation float3(2.0, -3.0, 0.5)
+#define Animation float3(5.0, -3.0, 0.5)
   
 float Turbulence(float3 position, float minFreq, float maxFreq, float qWidth)
 {
@@ -90,7 +86,7 @@ float Sun(float3 position, float3 rposition, float radius)
 
 float map(float3 p)
 {
-    float d1 = Sun(p, sunPos, 3.5);
+    float d1 = Sun(p, posW, 3.5);
     return d1;
 }
 

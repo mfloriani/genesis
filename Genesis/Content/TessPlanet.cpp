@@ -12,7 +12,7 @@ TessPlanet::TessPlanet(const std::shared_ptr<DX::DeviceResources>& deviceResourc
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_wireframe(false)
 {
 	// TODO: replace this fixed value
-	m_transform.position = XMFLOAT3(10.0f, 40.0f, -40.0f);
+	m_transform.position = XMFLOAT3(10.0f, 20.0f, -50.0f);
 	m_transform.scale = XMFLOAT3(15.0f, 15.0f, 15.0f);
 
 }
@@ -291,21 +291,12 @@ void TessPlanet::CreateDeviceDependentResources()
 			)
 		);
 
-		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc2,
 				nullptr,
-				&m_cameraBuffer
-			)
-		);
-
-		CD3D11_BUFFER_DESC constantBufferDesc3(sizeof(ObjectCB), D3D11_BIND_CONSTANT_BUFFER);
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&constantBufferDesc3,
-				nullptr,
-				&m_objectBuffer
+				&m_perFrameBuffer
 			)
 		);
 
@@ -327,8 +318,7 @@ void TessPlanet::ReleaseDeviceDependentResources()
 	m_geometryShader.Reset();
 	m_pixelShader.Reset();
 	m_MVPBuffer.Reset();
-	m_cameraBuffer.Reset();
-	m_objectBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_hullShader.Reset();
 	m_domainShader.Reset();
@@ -358,9 +348,10 @@ void TessPlanet::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECT
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
 
-	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
-	
-	XMStoreFloat4(&m_objectBufferData.positionW, XMLoadFloat3(&m_transform.position));
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMLoadFloat3(&m_transform.position));
 }
 
 void TessPlanet::Render()
@@ -381,20 +372,10 @@ void TessPlanet::Render()
 	);
 
 	context->UpdateSubresource1(
-		m_cameraBuffer.Get(),
+		m_perFrameBuffer.Get(),
 		0,
 		NULL,
-		&m_cameraBufferData,
-		0,
-		0,
-		0
-	);
-
-	context->UpdateSubresource1(
-		m_objectBuffer.Get(),
-		0,
-		NULL,
-		&m_objectBufferData,
+		&m_perFrameBufferData,
 		0,
 		0,
 		0
@@ -439,15 +420,7 @@ void TessPlanet::Render()
 	context->VSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-	);
-
-	context->VSSetConstantBuffers1(
-		2,
-		1,
-		m_objectBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);
@@ -475,28 +448,24 @@ void TessPlanet::Render()
 	context->DSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);
 
 	context->GSSetShader(
-		//m_geometryShader.Get(),
 		nullptr,
 		nullptr,
 		0
 	);
-
 	
 	context->RSSetState(m_rasterizerState.Get());
 
-	// Attach our pixel shader.
 	context->PSSetShader(
 		m_pixelShader.Get(),
 		nullptr,
 		0
 	);
-		
 
 	std::vector<float> bf{ 0.f, 0.f, 0.f, 0.f };
 	context->OMSetBlendState(nullptr, bf.data(), 0xFFFFFFFF);

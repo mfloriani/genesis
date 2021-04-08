@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RayMarching.h"
 #include "Util.h"
+
 #include "..\Common\DirectXHelper.h"
 
 #include <array>
@@ -115,21 +116,12 @@ void RayMarching::CreateDeviceDependentResources()
 			)
 		);
 
-		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc2,
 				nullptr,
-				&m_cameraBuffer
-			)
-		);
-
-		CD3D11_BUFFER_DESC constantBufferDesc3(sizeof(TimeCB), D3D11_BIND_CONSTANT_BUFFER);
-		DX::ThrowIfFailed(
-			m_deviceResources->GetD3DDevice()->CreateBuffer(
-				&constantBufferDesc3,
-				nullptr,
-				&m_timeBuffer
+				&m_perFrameBuffer
 			)
 		);
 
@@ -161,10 +153,9 @@ void RayMarching::ReleaseDeviceDependentResources()
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();
 	m_MVPBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
-	m_cameraBuffer.Reset();
-	m_timeBuffer.Reset();
 	m_rasterizerState.Reset();
 }
 
@@ -174,10 +165,11 @@ void RayMarching::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVEC
 	m_MVPBufferData.view = mvp.view;
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
-
-	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
 	
-	m_timeBufferData.time = timer.GetTotalSeconds();
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMVectorZero());
 }
 
 void RayMarching::Render()
@@ -186,7 +178,6 @@ void RayMarching::Render()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(
 		m_MVPBuffer.Get(),
 		0,
@@ -198,26 +189,15 @@ void RayMarching::Render()
 	);
 
 	context->UpdateSubresource1(
-		m_cameraBuffer.Get(),
+		m_perFrameBuffer.Get(),
 		0,
 		NULL,
-		&m_cameraBufferData,
+		&m_perFrameBufferData,
 		0,
 		0,
 		0
 	);
 
-	context->UpdateSubresource1(
-		m_timeBuffer.Get(),
-		0,
-		NULL,
-		&m_timeBufferData,
-		0,
-		0,
-		0
-	);
-
-	// Each vertex is one instance of the VertexPositionColor struct.
 	UINT stride = sizeof(VertexPosition);
 	UINT offset = 0;
 	context->IASetVertexBuffers(
@@ -237,14 +217,12 @@ void RayMarching::Render()
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	// Attach our vertex shader.
 	context->VSSetShader(
 		m_vertexShader.Get(),
 		nullptr,
 		0
 	);
 
-	// Send the constant buffer to the graphics device.
 	context->VSSetConstantBuffers1(
 		0,
 		1,
@@ -282,22 +260,13 @@ void RayMarching::Render()
 	context->PSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
-		nullptr,
-		nullptr
-	);
-
-	context->PSSetConstantBuffers1(
-		2,
-		1,
-		m_timeBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);
 
 	context->RSSetState(m_rasterizerState.Get());
 
-	// Attach our pixel shader.
 	context->PSSetShader(
 		m_pixelShader.Get(),
 		nullptr,

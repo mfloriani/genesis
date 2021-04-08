@@ -114,12 +114,12 @@ void RayTracing::CreateDeviceDependentResources()
 		);
 
 
-		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(CameraCB), D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateBuffer(
 				&constantBufferDesc2,
 				nullptr,
-				&m_cameraBuffer
+				&m_perFrameBuffer
 			)
 		);
 
@@ -154,7 +154,7 @@ void RayTracing::ReleaseDeviceDependentResources()
 	m_MVPBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_indexBuffer.Reset();
-	m_cameraBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_rasterizerState.Reset();
 }
 
@@ -165,7 +165,10 @@ void RayTracing::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECT
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
 
-	XMStoreFloat4(&m_cameraBufferData.cameraPos, camPos);
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMVectorZero());
 }
 
 void RayTracing::Render()
@@ -186,10 +189,10 @@ void RayTracing::Render()
 	);
 
 	context->UpdateSubresource1(
-		m_cameraBuffer.Get(),
+		m_perFrameBuffer.Get(),
 		0,
 		NULL,
-		&m_cameraBufferData,
+		&m_perFrameBufferData,
 		0,
 		0,
 		0
@@ -260,7 +263,7 @@ void RayTracing::Render()
 	context->VSSetConstantBuffers1(
 		1,
 		1,
-		m_cameraBuffer.GetAddressOf(),
+		m_perFrameBuffer.GetAddressOf(),
 		nullptr,
 		nullptr
 	);

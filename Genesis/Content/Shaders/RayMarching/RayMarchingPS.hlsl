@@ -11,16 +11,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix invView;
 }
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
     float3 eye;
-    float  pad;
-};
-
-cbuffer TimeCB : register(b2)
-{
+    float  pad1;
     float  time;
     float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 struct VS_Quad
@@ -507,21 +505,7 @@ float4 scene(float3 p)
     
     float waveBox = sdRoundBox(p - float3(5.0, -28.5f, -5.0), float3(10.05f, 1.05f, 10.05f), 1.) - sin(p.x * 7.5 + time * 3.)* .02;
     d = opU(d, float4(0.5, 0.5, 1, waveBox));
-        
-    /* clone objects using abs
-    float3 box2Pos = p - float3(10, 8, -8);
-    //box2Pos.x = abs(box2Pos.x);
-    //box2Pos.x -= 1.;
-    box2Pos = abs(box2Pos);
-    box2Pos -= 1.;
     
-    float scale = lerp(1., 3., smoothstep(-1., 1., box2Pos.y));
-    box2Pos.xz *= scale;
-    //box2Pos.xz = mul(box2Pos.xz, rotate(box2Pos.y));
-    box2Pos.xz = mul(box2Pos.xz, rotate(smoothstep(0., 1., box2Pos.y)));
-    float box2 = sdBox(box2Pos, float3(1, 1, 1)) / scale;
-    d = opU(d, float4(1, 0.4, 0.2, box2));
-    */
     
     // blending balls
     {
@@ -652,32 +636,7 @@ float4 scene(float3 p)
         
         d = opU(d, float4(.5, .5, .9, sat));
     }
-    
-    /*
-    // worm
-    {
-        float3 wormPos = p - float3(0, -10, 20);
         
-        float baseDist = sdVerticalCapsule(wormPos, 10., 1.);        
-        float centerDist = sdVerticalCapsule(wormPos - float3(0, 10, 0), 10., 1.);
-        float headDist = sdSphere(wormPos - float3(0, 20, 0), 3);
-        float eyeHoleDist = sdSphere(wormPos - float3(0, 20, -3), .5);        
-        float eyeHoleSubDist = smoothS(eyeHoleDist, headDist, .5);
-        
-        float eyeDist = sdSphere(wormPos - float3(0, 20, -3), .5);
-        d = opU(d, float4(0, 0, 0, eyeDist));
-        
-        float eyeWhiteDist = sdSphere(wormPos - float3(0, 20, -3.5), .2);
-        d = opU(d, float4(1, 1, 1, eyeWhiteDist));
-        
-        
-        //d = min(d, rounding(sdCappedCylinder(wormPos, float2(0.4, 0.1)), 0.1));
-        
-        float wormDist = softMin2(baseDist, softMin2(centerDist, eyeHoleSubDist, .5), 0.5);
-        
-        d = opU(d, float4(.5, 0, .5, wormDist));
-    }
-    */
     
     // comet
     {
@@ -771,7 +730,7 @@ float4 main(VS_Quad input) : SV_TARGET
     
     float3 pos = ray.o + ray.d * colorDist.w;
     
-    light.position.xz += float2(sin(time), cos(time)) * 2.0;
+    //light.position.xz += float2(sin(time), cos(time)) * 2.0;
     
     float4 color = phong(pos, calcNormal(pos), ray.d, float4(colorDist.xyz, 1.0));
     

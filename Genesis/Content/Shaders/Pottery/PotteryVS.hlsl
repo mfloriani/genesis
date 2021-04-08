@@ -7,16 +7,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix gInvView;
 };
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
-    float3 gCamEye;
-    float padding;
-};
-
-cbuffer ObjectCB : register(b2)
-{
-    float3 gCenterPosW;
-    float padding2;
+    float3 eye;
+    float  pad1;
+    float  time;
+    float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 struct VS_Input
@@ -36,7 +34,7 @@ HS_Input main(VS_Input input)
 {
     float4 pos = float4(input.positionL, 1.0);
     
-    float d = distance(gCenterPosW, gCamEye);
+    float d = distance(posW, eye);
     const float d0 = 1.0f; // max factor dist
     const float d1 = 5.f; // min factor dist
     float tessFactor = 1.0f + ((64.0f - 1.0f) * saturate((d1 - d) / (d1 - d0)));

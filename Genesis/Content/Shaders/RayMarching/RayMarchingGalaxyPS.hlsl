@@ -6,16 +6,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix invView;
 }
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
     float3 eye;
-    float pad;
-};
-
-cbuffer TimeCB : register(b2)
-{
-    float time;
+    float  pad1;
+    float  time;
     float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 struct VS_Quad

@@ -9,10 +9,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix gInvView;
 };
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
-    float3 gCamEye;
-    float padding;
+    float3 eye;
+    float  pad1;
+    float  time;
+    float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 struct DS_OUTPUT
@@ -69,7 +73,7 @@ DS_OUTPUT main(
 
     float3 p = CubicBezierSum(patch, basisU, basisV);
     
-    Output.camViewDir = normalize(gCamEye - p);
+    Output.camViewDir = normalize(eye - p);
     
     Output.uv = domain;
     

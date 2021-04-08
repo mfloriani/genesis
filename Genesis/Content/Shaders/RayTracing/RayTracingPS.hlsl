@@ -23,10 +23,14 @@ cbuffer ModelViewProjCB : register(b0)
     matrix invView;
 }
 
-cbuffer CameraCB : register(b1)
+cbuffer PerFrameCB : register(b1)
 {
-    float3 cameraPos;
-    float padding;
+    float3 eye;
+    float  pad1;
+    float  time;
+    float3 pad2;
+    float3 posW;
+    float  pad3;
 };
 
 
@@ -138,6 +142,8 @@ float3 getNormal(int face_hit)
             return (float3(0, 1, 0)); // +y face
         case 5:
             return (float3(0, 0, 1)); // +z face
+        default:
+            return (float3) 0;
     }
     return (float3)0;
 
@@ -145,6 +151,9 @@ float3 getNormal(int face_hit)
 
 float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
 {
+    normal = (float3) 0;
+    hit = false;
+    
     float t = -1;
     float3 p0 = cube.mi;
     float3 p1 = cube.ma;
@@ -153,7 +162,7 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
     float3 t_min;
     float3 t_max;
 
-    double a = 1.0 / d.x;
+    float a = 1.0 / d.x;
     if(a >= 0){
         t_min.x = (p0.x - o.x) * a;
         t_max.x = (p1.x - o.x) * a; 
@@ -162,7 +171,8 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         t_min.x = (p1.x - o.x) * a;
         t_max.x = (p0.x - o.x) * a;
     }
-    double b = 1.0 / d.y;
+    
+    float b = 1.0 / d.y;
     if(b >= 0){
         t_min.y = (p0.y - o.y) * b;
         t_max.y = (p1.y - o.y) * b; 
@@ -171,7 +181,8 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         t_min.y = (p1.y - o.y) * b;
         t_max.y = (p0.y - o.y) * b;
     } 
-    double c = 1.0 / d.z;
+    
+    float c = 1.0 / d.z;
     if(c >= 0){
         t_min.z = (p0.z - o.z) * c;
         t_max.z = (p1.z - o.z) * c; 
@@ -180,7 +191,7 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         t_min.z = (p1.z - o.z) * c;
         t_max.z = (p0.z - o.z) * c;
     }
-    double t0, t1;
+    float t0, t1;
     int face_in, face_out;
     // finding largest
     if(t_min.x > t_min.y){
@@ -228,6 +239,7 @@ float CubeIntersect(Ray ray, Cube cube, out bool hit, out float3 normal)
         hit = false;
         return t;
     }
+    return t;
 }
 
 float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint, out float3 n)
@@ -351,8 +363,8 @@ float4 main(VS_Quad input) : SV_TARGET
     float3 PixelPos = float3(input.canvasXY, -dist2Imageplane);
 
     Ray eyeray;
-    eyeray.o = mul(float4(float3(0.0f, 0.0f, 0.0f), 1.0f), invView);
-    eyeray.d = normalize(mul(float4(PixelPos, 0.0f), invView));
+    eyeray.o = mul(float4(float3(0.0f, 0.0f, 0.0f), 1.0f), invView).xyz;
+    eyeray.d = normalize(mul(float4(PixelPos, 0.0f), invView)).xyz;
     
     bool anyHit = false;
     float4 colorDistance = RayTracing(eyeray, anyHit);
