@@ -9,16 +9,16 @@
 
 namespace Genesis
 {
-	class StarrySky
+	class ShinnyStar
 	{
 	public:
-		StarrySky(const std::shared_ptr<DX::DeviceResources>& deviceResources);
-		~StarrySky();
+		ShinnyStar(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+		~ShinnyStar();
 
 		void CreateDeviceDependentResources();
 		void ReleaseDeviceDependentResources();
 
-		void Update(DX::StepTimer const& timer, ModelViewProjCB& mvp);
+		void Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, DirectX::XMVECTOR& camPos);
 		void Render();
 
 	private:
@@ -30,9 +30,11 @@ namespace Genesis
 		Microsoft::WRL::ComPtr<ID3D11GeometryShader>m_geometryShader;
 		Microsoft::WRL::ComPtr<ID3D11PixelShader>	m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_MVPBuffer;
+		Microsoft::WRL::ComPtr<ID3D11Buffer>		m_perFrameBuffer;
 		Microsoft::WRL::ComPtr<ID3D11BlendState>    m_additiveBlending;
 
 		ModelViewProjCB	m_MVPBufferData;
+		PerFrameCB		m_perFrameBufferData;
 		bool            m_ready;
 		unsigned int    m_indexCount;
 	};

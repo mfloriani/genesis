@@ -14,6 +14,7 @@
 #include "RayMarching.h"
 #include "RayMarchingSun.h"
 #include "RayMarchingGalaxy.h"
+#include "ShinnyStar.h"
 
 #include <memory>
 
@@ -40,7 +41,7 @@ namespace Genesis
 	private:
 		// Cached pointer to device resources.
 		std::shared_ptr<DX::DeviceResources> m_deviceResources;
-		ModelViewProjCB	m_MVPBufferData;
+		
 
 		std::unique_ptr<Camera>              m_camera;
 		std::unique_ptr<StarrySky>           m_starrySky;
@@ -52,6 +53,9 @@ namespace Genesis
 		std::unique_ptr<RayMarching>	     m_rayMarching;
 		std::unique_ptr<RayMarchingSun>	     m_rayMarchingSun;
 		std::unique_ptr<RayMarchingGalaxy>	 m_rayMarchingGalaxy;
+		std::unique_ptr<ShinnyStar>			 m_shinnyStar;
+
+		ModelViewProjCB	m_MVPBufferData;		
 	};
 }
 

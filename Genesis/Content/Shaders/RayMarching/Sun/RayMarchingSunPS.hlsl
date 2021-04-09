@@ -169,5 +169,6 @@ float4 main(VS_Quad input) : SV_TARGET
     //    tc += col;
     //}
     
+    
     return float4(tc, 1.0);
 }

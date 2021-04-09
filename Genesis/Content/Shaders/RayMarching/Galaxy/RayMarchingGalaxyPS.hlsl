@@ -28,7 +28,6 @@ float4 main(VS_Quad input) : SV_TARGET
     float3 pixelPos = float3(input.canvasXY, -1);
     float3 rd = normalize(mul(float4(pixelPos, 0.0f), invView)).xyz;
     
-    
     float t = time * .1 + ((.25 + .05 * sin(time * .1)) / (length(input.canvasXY) + .07)) * 2.2;
     float si = sin(t);
     float co = cos(t);
@@ -61,5 +60,4 @@ float4 main(VS_Quad input) : SV_TARGET
 					 v2) + smoothstep(0.2, .0, len) * .85 + smoothstep(.0, .6, v3) * .3;
 
     return float4(min(pow(abs(col), (float3)1.2), 1.0), 1.0);
-    
 }

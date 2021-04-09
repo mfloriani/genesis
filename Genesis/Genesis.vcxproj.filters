@@ -75,6 +75,7 @@
     <ClCompile Include="Content\AssetManager.cpp" />
     <ClCompile Include="Content\DDSTextureLoader.cpp" />
     <ClCompile Include="Content\RayMarchingGalaxy.cpp" />
+    <ClCompile Include="Content\ShinnyStar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -107,6 +108,7 @@
     <ClInclude Include="Content\AssetManager.h" />
     <ClInclude Include="Content\DDSTextureLoader.h" />
     <ClInclude Include="Content\RayMarchingGalaxy.h" />
+    <ClInclude Include="Content\ShinnyStar.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -147,11 +149,17 @@
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripHS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripPS.hlsl" />
     <FxCompile Include="Content\Shaders\NarrowStrip\NarrowStripVS.hlsl" />
-    <FxCompile Include="Content\Shaders\RayMarching\RayMarchingGalaxyPS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Sun\RayMarchingSunPS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Sun\SunVS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Sun\SunGS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Sun\SunPS.hlsl" />
+    <FxCompile Include="Content\Shaders\ShinnyStar\ShinnyStarVS.hlsl" />
+    <FxCompile Include="Content\Shaders\ShinnyStar\ShinnyStarGS.hlsl" />
+    <FxCompile Include="Content\Shaders\ShinnyStar\ShinnyStarPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Galaxy\GalaxyGS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Galaxy\GalaxyVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Galaxy\RayMarchingGalaxyPS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Galaxy\GalaxyPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\noise.dds" />

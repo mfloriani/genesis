@@ -18,7 +18,6 @@ PS_Input main(float4 pos : POSITION)
     output.position = float4(sign(pos.xy), 0, 1);
 
     float aspectRatio = projection._m00 / projection._m11;
-    //float aspectRatio = projection._m11 / projection._m00;
     output.canvasXY = sign(pos.xy) * float2(1.0, aspectRatio);
 
     return output;

@@ -36,6 +36,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_rayMarching = std::make_unique<RayMarching>(deviceResources);
 	m_rayMarchingSun = std::make_unique<RayMarchingSun>(deviceResources);
 	m_rayMarchingGalaxy = std::make_unique<RayMarchingGalaxy>(deviceResources);
+	m_shinnyStar = std::make_unique<ShinnyStar>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -85,6 +86,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	XMStoreFloat4x4(&m_MVPBufferData.invView, XMMatrixTranspose(XMMatrixInverse(nullptr, camView)));
 
 	m_starrySky->Update(timer, m_MVPBufferData);
+	m_shinnyStar->Update(timer, m_MVPBufferData, camEye);
 	m_tessPlanet->Update(timer, m_MVPBufferData, camEye);
 	m_pottery->Update(timer, m_MVPBufferData, camEye);
 	m_narrowStrip->Update(timer, m_MVPBufferData, camEye);
@@ -150,22 +152,22 @@ bool Genesis3DSceneRenderer::QueryKeyPressed(VirtualKey key)
 void Genesis3DSceneRenderer::RenderToTexture()
 {
 	m_rayMarchingSun->RenderToTexture();
+	m_rayMarchingGalaxy->RenderToTexture();
 }
 
 void Genesis3DSceneRenderer::Render()
 {
 	m_rayTracing->Render();
 	m_rayMarching->Render();
-	m_implicitTerrain->Render();	
+	m_implicitTerrain->Render();
 	m_pottery->Render();
 	m_narrowStrip->Render();
-	m_starrySky->Render();
 	m_tessPlanet->Render();
 	m_rayMarchingSun->Render();
+	m_starrySky->Render();
+	m_shinnyStar->Render();
 
-
-
-	//m_rayMarchingGalaxy->Render();
+	m_rayMarchingGalaxy->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
@@ -178,6 +180,7 @@ void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
 void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 {
 	m_starrySky->CreateDeviceDependentResources();
+	m_shinnyStar->CreateDeviceDependentResources();
 	m_tessPlanet->CreateDeviceDependentResources();
 	m_pottery->CreateDeviceDependentResources();
 	m_narrowStrip->CreateDeviceDependentResources();
@@ -191,6 +194,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 {
 	m_starrySky->ReleaseDeviceDependentResources();
+	m_shinnyStar->ReleaseDeviceDependentResources();
 	m_tessPlanet->ReleaseDeviceDependentResources();
 	m_pottery->ReleaseDeviceDependentResources();
 	m_narrowStrip->ReleaseDeviceDependentResources();

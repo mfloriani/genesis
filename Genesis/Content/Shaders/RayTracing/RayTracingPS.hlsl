@@ -3,7 +3,7 @@ static float nearPlane = 1.00;
 static float farPlane = 100.0;
 
 static float4 LightColor = float4(1, 1, 1, 1);
-static float3 LightPos = float3(0, 10, 2);
+static float3 LightPos = float3(0, 15.f, -10.f);
 
 static float4 sphereColor_1 = float4(1, 0, 0, 1); //sphere1 color
 static float4 sphereColor_2 = float4(0, 1, 0, 1); //sphere2 color
@@ -282,22 +282,6 @@ float3 NearestHit(Ray ray, out int hitobj, out bool anyhit, out float mint, out 
     return ray.o + ray.d * mint;
 }
 
-//bool AnyHit(Ray ray)
-//{
-//    bool anyhit = false;
-//    for (int i = 0; i < NOBJECTS; i++)
-//    {
-//        bool hit;
-//        float t = SphereIntersect(object[i], ray, hit);
-//        if (hit)
-//        {
-//            anyhit = true;
-//        }
-//    }
-    
-//    return anyhit;
-//}
-
 float4 Phong(float3 n, float3 l, float3 v, float shininess, float4 diffuseColor, float4 specularColor)
 {
     float NdotL = dot(n, l);
@@ -312,14 +296,11 @@ float4 Shade(float3 hitPos, float3 normal, float3 viewDir, int hitobj, float lig
     Ray shadowRay;
     shadowRay.o = hitPos.xyz;
     shadowRay.d = LightPos - hitPos.xyz;
-    float shadowFactor = 1.0;
-    //if (AnyHit(shadowRay))
-    //    shadowFactor = 0.3;
-
+    
     float3 lightDir = normalize(LightPos - hitPos);
     float4 diff = materials[hitobj].color * materials[hitobj].Kd;
     float4 spec = materials[hitobj].color * materials[hitobj].Ks;
-    return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, materials[hitobj].shininess, diff, spec) * shadowFactor;
+    return LightColor * lightIntensity * Phong(normal, lightDir, viewDir, materials[hitobj].shininess, diff, spec);
 }
 
 float4 RayTracing(Ray ray, out bool anyHit)

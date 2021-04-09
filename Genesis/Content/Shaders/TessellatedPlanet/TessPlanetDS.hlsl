@@ -88,6 +88,9 @@ DS_OUTPUT main(
     
     float4 pos = float4(Output.positionW, 1);
     pos = mul(pos, gModel);
+    
+    Output.positionW = pos;
+    
     pos = mul(pos, gView);
     pos = mul(pos, gProj);
     

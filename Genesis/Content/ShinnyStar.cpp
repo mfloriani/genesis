@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "StarrySky.h"
+#include "ShinnyStar.h"
 #include "Util.h"
 
 #include "..\Common\DirectXHelper.h"
@@ -9,20 +9,20 @@
 using namespace Genesis;
 using namespace DirectX;
 
-StarrySky::StarrySky(const std::shared_ptr<DX::DeviceResources>& deviceResources) 
+ShinnyStar::ShinnyStar(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0)
 {
 }
 
-StarrySky::~StarrySky()
+ShinnyStar::~ShinnyStar()
 {
 }
 
-void StarrySky::CreateDeviceDependentResources()
+void ShinnyStar::CreateDeviceDependentResources()
 {
-	auto loadVSTask = DX::ReadDataAsync(L"StarrySkyVS.cso");
-	auto loadGSTask = DX::ReadDataAsync(L"StarrySkyGS.cso");
-	auto loadPSTask = DX::ReadDataAsync(L"StarrySkyPS.cso");
+	auto loadVSTask = DX::ReadDataAsync(L"ShinnyStarVS.cso");
+	auto loadGSTask = DX::ReadDataAsync(L"ShinnyStarGS.cso");
+	auto loadPSTask = DX::ReadDataAsync(L"ShinnyStarPS.cso");
 
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
@@ -79,13 +79,22 @@ void StarrySky::CreateDeviceDependentResources()
 				&m_MVPBuffer
 			)
 		);
+
+		CD3D11_BUFFER_DESC constantBufferDesc2(sizeof(PerFrameCB), D3D11_BIND_CONSTANT_BUFFER);
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateBuffer(
+				&constantBufferDesc2,
+				nullptr,
+				&m_perFrameBuffer
+			)
+		);
 	});
 
 
 	auto createSkyTask = (createVSTask && createGSTask && createPSTask).then([this]() {
-		
-		m_indexCount = 25000; // number of stars
-		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 100.0f);
+
+		m_indexCount = 25; // number of stars
+		auto vertices = GenerateRandomPointsOnSphere(m_indexCount, 90.0f);
 
 		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 };
 		vertexBufferData.pSysMem = vertices.data();
@@ -99,7 +108,7 @@ void StarrySky::CreateDeviceDependentResources()
 				&m_vertexBuffer
 			)
 		);
-		
+
 	});
 
 	createSkyTask.then([this]() {
@@ -122,32 +131,37 @@ void StarrySky::CreateDeviceDependentResources()
 
 }
 
-void StarrySky::ReleaseDeviceDependentResources()
+void ShinnyStar::ReleaseDeviceDependentResources()
 {
 	m_ready = false;
 	m_vertexShader.Reset();
 	m_inputLayout.Reset();
 	m_pixelShader.Reset();
 	m_MVPBuffer.Reset();
+	m_perFrameBuffer.Reset();
 	m_vertexBuffer.Reset();
 	m_geometryShader.Reset();
 }
 
-void StarrySky::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp)
+void ShinnyStar::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
 {
 	XMStoreFloat4x4(&m_MVPBufferData.model, XMMatrixIdentity());
 	m_MVPBufferData.view = mvp.view;
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
+
+	float time = static_cast<float>(timer.GetTotalSeconds());
+	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
+	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
+	XMStoreFloat4(&m_perFrameBufferData.positionW, XMVectorZero());
 }
 
-void StarrySky::Render()
+void ShinnyStar::Render()
 {
 	if (!m_ready) return;
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 
-	// Prepare the constant buffer to send it to the graphics device.
 	context->UpdateSubresource1(
 		m_MVPBuffer.Get(),
 		0,
@@ -158,7 +172,16 @@ void StarrySky::Render()
 		0
 	);
 
-	// Each vertex is one instance of the VertexPositionColor struct.
+	context->UpdateSubresource1(
+		m_perFrameBuffer.Get(),
+		0,
+		NULL,
+		&m_perFrameBufferData,
+		0,
+		0,
+		0
+	);
+
 	UINT stride = sizeof(VertexPosition);
 	UINT offset = 0;
 	context->IASetVertexBuffers(
@@ -172,13 +195,12 @@ void StarrySky::Render()
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	context->IASetInputLayout(m_inputLayout.Get());
 
-	// Attach our vertex shader.
 	context->VSSetShader(
 		m_vertexShader.Get(),
 		nullptr,
 		0
 	);
-	
+
 	context->HSSetShader(
 		nullptr,
 		nullptr,
@@ -197,7 +219,6 @@ void StarrySky::Render()
 		0
 	);
 
-	// Send the constant buffer to the graphics device.
 	context->GSSetConstantBuffers1(
 		0,
 		1,
@@ -206,16 +227,24 @@ void StarrySky::Render()
 		nullptr
 	);
 
-	// Attach our pixel shader.
 	context->PSSetShader(
 		m_pixelShader.Get(),
 		nullptr,
 		0
 	);
 
+	context->PSSetConstantBuffers1(
+		0,
+		1,
+		m_perFrameBuffer.GetAddressOf(),
+		nullptr,
+		nullptr
+	);
+	
 	// turn on the additive blending factor
 	std::vector<float> bf{ 1.f, 1.f, 1.f, 1.f };
 	context->OMSetBlendState(m_additiveBlending.Get(), bf.data(), 0xFFFFFFFF);
 
 	context->Draw(m_indexCount, 0);
+
 }

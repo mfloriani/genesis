@@ -73,8 +73,7 @@ DS_OUTPUT main(
 
     float3 p = CubicBezierSum(patch, basisU, basisV);
     
-    Output.camViewDir = normalize(eye - p);
-    
+    Output.camViewDir = normalize(eye - p);    
     Output.uv = domain;
     
     float4 pos = float4(p, 1);

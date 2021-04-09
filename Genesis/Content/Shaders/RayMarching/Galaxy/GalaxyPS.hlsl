@@ -1,4 +1,4 @@
-Texture2D sunTexture : register(t0);
+Texture2D Texture : register(t0);
 SamplerState SamplerTex : register(s0);
 
 struct PS_Input
@@ -9,15 +9,10 @@ struct PS_Input
 
 float4 main(PS_Input input) : SV_TARGET
 {
-    float4 texel = sunTexture.Sample(SamplerTex, input.uv);
+    float4 texel = Texture.Sample(SamplerTex, input.uv);
     
     float2 center = float2(0.5, 0.5);
     float falloff = 1.0 - smoothstep(0.0, .6, length(input.uv - center));
-    
-    float4 color = texel * falloff;
-    
-    //if (length(color.xyz) < 0.1 )
-    //    discard;
-    
-    return color;
+        
+    return texel * falloff;
 }

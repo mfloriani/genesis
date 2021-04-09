@@ -44,7 +44,7 @@ struct Light
 
 static Light light =
 {
-    float3(0, 10, 0),
+    float3(0, 15.f, -10.f),
     float4(0.2f, 0.2f, 0.2f, 1.0f),
     float4(0.3f, 0.3f, 0.3f, 1.0f),
     float4(0.3f, 0.3f, 0.3f, 1.0f),
