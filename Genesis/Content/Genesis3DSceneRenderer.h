@@ -15,6 +15,8 @@
 #include "RayMarchingSun.h"
 #include "RayMarchingGalaxy.h"
 #include "ShinnyStar.h"
+#include "RayMarchingSaturn.h"
+
 
 #include <memory>
 
@@ -54,6 +56,7 @@ namespace Genesis
 		std::unique_ptr<RayMarchingSun>	     m_rayMarchingSun;
 		std::unique_ptr<RayMarchingGalaxy>	 m_rayMarchingGalaxy;
 		std::unique_ptr<ShinnyStar>			 m_shinnyStar;
+		std::unique_ptr<RayMarchingSaturn>	 m_rayMarchingSaturn;
 
 		ModelViewProjCB	m_MVPBufferData;		
 	};
