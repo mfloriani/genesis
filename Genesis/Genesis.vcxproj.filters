@@ -77,6 +77,7 @@
     <ClCompile Include="Content\RayMarchingGalaxy.cpp" />
     <ClCompile Include="Content\ShinnyStar.cpp" />
     <ClCompile Include="Content\RayMarchingComet.cpp" />
+    <ClCompile Include="Content\RayMarchingSaturn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -111,6 +112,7 @@
     <ClInclude Include="Content\RayMarchingGalaxy.h" />
     <ClInclude Include="Content\ShinnyStar.h" />
     <ClInclude Include="Content\RayMarchingComet.h" />
+    <ClInclude Include="Content\RayMarchingSaturn.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -166,6 +168,7 @@
     <FxCompile Include="Content\Shaders\RayMarching\Comet\RayMarchingCometPS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Comet\CometPS.hlsl" />
     <FxCompile Include="Content\Shaders\RayMarching\Comet\CometVS.hlsl" />
+    <FxCompile Include="Content\Shaders\RayMarching\Saturn\RayMarchingSaturnPS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="Assets\noise.dds" />

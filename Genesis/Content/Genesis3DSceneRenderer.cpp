@@ -38,6 +38,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_rayTracing = std::make_unique<RayTracing>(deviceResources);
 	m_implicitTerrain = std::make_unique<ImplicitTerrain>(deviceResources);
 	m_rayMarching = std::make_unique<RayMarching>(deviceResources);
+	m_rayMarchingSaturn = std::make_unique<RayMarchingSaturn>(deviceResources);
 	m_rayMarchingSun = std::make_unique<RayMarchingSun>(deviceResources);
 	m_rayMarchingGalaxy = std::make_unique<RayMarchingGalaxy>(deviceResources);
 	m_shinnyStar = std::make_unique<ShinnyStar>(deviceResources);
@@ -74,7 +75,7 @@ void Genesis3DSceneRenderer::CreateWindowSizeDependentResources()
 		XMMatrixTranspose(perspectiveMatrix)
 	);
 
-	m_camera->LookAt(XMFLOAT3(0.0f, 0.f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_camera->LookAt(XMFLOAT3(0.0f, 10.f, 5.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
@@ -98,6 +99,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_rayTracing->Update(timer, m_MVPBufferData, camEye);
 	m_implicitTerrain->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
+	m_rayMarchingSaturn->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingSun->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingGalaxy->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingComet->Update(timer, m_MVPBufferData, camEye);
@@ -166,15 +168,15 @@ void Genesis3DSceneRenderer::Render()
 {
 	m_rayTracing->Render();
 	m_rayMarching->Render();
+	m_rayMarchingSaturn->Render();
 	m_implicitTerrain->Render();
 	m_pottery->Render();
 	m_narrowStrip->Render();
 	m_tessPlanet->Render();
+	m_rayMarchingGalaxy->Render();
 	m_rayMarchingSun->Render();
 	m_starrySky->Render();
 	m_shinnyStar->Render();
-
-	m_rayMarchingGalaxy->Render();
 	m_rayMarchingComet->Render();
 }
 
@@ -195,6 +197,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_rayTracing->CreateDeviceDependentResources();
 	m_implicitTerrain->CreateDeviceDependentResources();
 	m_rayMarching->CreateDeviceDependentResources();
+	m_rayMarchingSaturn->CreateDeviceDependentResources();
 	m_rayMarchingSun->CreateDeviceDependentResources();
 	m_rayMarchingGalaxy->CreateDeviceDependentResources();
 	m_rayMarchingComet->CreateDeviceDependentResources();
@@ -210,6 +213,7 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_rayTracing->ReleaseDeviceDependentResources();
 	m_implicitTerrain->ReleaseDeviceDependentResources();
 	m_rayMarching->ReleaseDeviceDependentResources();
+	m_rayMarchingSaturn->ReleaseDeviceDependentResources();
 	m_rayMarchingSun->ReleaseDeviceDependentResources();
 	m_rayMarchingGalaxy->ReleaseDeviceDependentResources();
 	m_rayMarchingComet->ReleaseDeviceDependentResources();

@@ -15,7 +15,7 @@ NarrowStrip::NarrowStrip(const std::shared_ptr<DX::DeviceResources>& deviceResou
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_wireframe(false)
 {
 	// TODO: replace this fixed value
-	m_transform.position = XMFLOAT3(50.0f, 25.0f, -50.0f);
+	m_transform.position = XMFLOAT3(-50.0f, 25.0f, -50.0f);
 	m_transform.scale = XMFLOAT3(13.f, 13.f, 13.f);
 	m_transform.rotation = XMFLOAT3(0.f, 0.0f, 0.0f);
 }

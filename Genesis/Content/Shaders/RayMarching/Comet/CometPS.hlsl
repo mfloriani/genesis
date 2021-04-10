@@ -17,5 +17,4 @@ float4 main(PS_Input input) : SV_TARGET
     float4 color = texel * falloff;
     
     return color;
-    //return float4(1, 1, 1, 1);
 }

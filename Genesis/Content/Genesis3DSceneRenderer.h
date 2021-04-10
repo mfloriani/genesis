@@ -16,6 +16,7 @@
 #include "RayMarchingGalaxy.h"
 #include "ShinnyStar.h"
 #include "RayMarchingComet.h"
+#include "RayMarchingSaturn.h"
 
 
 #include <memory>
@@ -53,6 +54,7 @@ namespace Genesis
 		std::unique_ptr<RayTracing>          m_rayTracing;
 		std::unique_ptr<ImplicitTerrain>     m_implicitTerrain;
 		std::unique_ptr<RayMarching>	     m_rayMarching;
+		std::unique_ptr<RayMarchingSaturn>	 m_rayMarchingSaturn;
 		std::unique_ptr<RayMarchingSun>	     m_rayMarchingSun;
 		std::unique_ptr<RayMarchingGalaxy>	 m_rayMarchingGalaxy;
 		std::unique_ptr<ShinnyStar>			 m_shinnyStar;

@@ -12,7 +12,7 @@ TessPlanet::TessPlanet(const std::shared_ptr<DX::DeviceResources>& deviceResourc
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0), m_wireframe(false)
 {
 	// TODO: replace this fixed value
-	m_transform.position = XMFLOAT3(10.0f, 20.0f, -50.0f);
+	m_transform.position = XMFLOAT3(40.0f, 20.0f, -50.0f);
 	m_transform.scale = XMFLOAT3(15.0f, 15.0f, 15.0f);
 
 }

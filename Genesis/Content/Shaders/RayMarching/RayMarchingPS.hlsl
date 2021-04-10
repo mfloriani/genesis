@@ -163,8 +163,6 @@ float2 opRevolution(in float3 p, float w)
     return float2(length(p.xz) - w, p.y);
 }
 
-
-
 float sdPlane(float3 p)
 {
     return p.y;
@@ -202,6 +200,12 @@ float sdTorus(float3 p, float2 t)
 {
     float2 q = float2(length(p.xz) - t.x, p.y);
     return length(q) - t.y;
+}
+
+float sdTorusDf(float3 p, float ri, float rc)
+{
+    float2 q = float2(length(p.xy) - rc, p.z);
+    return length(q) - ri;
 }
 
 float sdHexagonalPrism(float3 p, float2 h)
@@ -475,13 +479,13 @@ float sdCappedCylinder(float3 p, float2 h)
     return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
+
 // returns xyz as color and w as distance
 float4 scene(float3 p)
 {
     float4 d = float4(0, 0, 0, 1e10); // xyz = color, w = distance
     
     //Ray Marched Implicit Geometric Primitives
-    
     
     // hollow box cut using plane
     {        
@@ -503,17 +507,17 @@ float4 scene(float3 p)
         
     }
     
-    float waveBox = sdRoundBox(p - float3(5.0, -28.5f, -5.0), float3(10.05f, 1.05f, 10.05f), 1.) - sin(p.x * 7.5 + time * 3.)* .02;
+    float waveBox = sdRoundBox(p - float3(5.0, -28.5f, 45.0), float3(40.05f, 1.05f, 40.05f), 1.) - sin(p.x * 7.5 + time * 3.)* .02;
     d = opU(d, float4(0.5, 0.5, 1, waveBox));
     
     
     // blending balls
     {
-        float3 pos = float3(0, -15, -40);
+        float3 pos = float3(40, -15, -40);
         float3 s1Pos = p - (pos);
-        float3 s2Pos = p - (pos - float3(sin(time) * 4., 0, 0));
-        float3 s3Pos = p - (pos - float3(0, sin(time) * 7., 0));
-        float3 s4Pos = p - (pos - float3(sin(time) * 2., 0, sin(time) * 2.));
+        float3 s2Pos = p - (pos - float3(sin(time) * 8., 0, 0));
+        float3 s3Pos = p - (pos - float3(0, sin(time) * 8., 0));
+        float3 s4Pos = p - (pos - float3(sin(time) * -8., 0, sin(time) * 2.));
         
         float s1Dist = sdSphere(s1Pos, 5.0 * 1 + sin(time));
         float s2Dist = sdSphere(s2Pos, 5.0 * 1 + sin(time));
@@ -527,9 +531,9 @@ float4 scene(float3 p)
     
     // planet with ring
     {
-        float3 planetPos = p - float3(-70, 40, -75);
-        d = opU(d, float4(0.6, 0, 0, sdSphere(planetPos, 20.0)));
-        d = opU(d, float4(1, 1, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
+        float3 planetPos = p - float3(90, 40, 55);
+        d = opU(d, float4(0.6, 0.3, 0.3, sdSphere(planetPos, 20.0)));
+        d = opU(d, float4(.5, .5, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
     }
     
     // volcano
@@ -545,21 +549,23 @@ float4 scene(float3 p)
         float rock = sdSphere(spherePos - float3(0, sin(time) * 10., 0), 0.75);
         float rock2 = sdSphere(spherePos - float3(1, sin(time) * 8., 0), .55);
         float rock3 = sdSphere(spherePos - float3(0, sin(time) * 15., 1), .35);
-        
+                
         float final = softMin2(volcano, softMin2(rock, softMin2(rock2, rock3, 0.5), 0.5), 0.5);
         
-        d = opU(d, float4(1, 0, 0, final));
+        d = opU(d, float4(0.4, 0, 0, final));
     }
     
     // open close object over volcano
     {
-        float3 q = p - float3(-50, 5, 15);
-        d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 0.5 + 0.5 * sin(time)), float2(0.3, 0.15), 0.01)));
+        float3 q = p - float3(-50, -8, 15);
+        d = min(d, float4(1, 1, 1, sdCross(opRevolution(q, 2.5 + 0.5 * sin(time)), float2(1.3, 0.15), 0.01)));
     }
+    
+    
     
     // portal box with deformed sphere inside
     {
-        float3 pos = p - float3(10.0, 0.2, 5.0);
+        float3 pos = p - float3(30.0, 0.2, 25.0);
         float roundBox = udRoundBox(pos, (float3) 1.55, 0.05);
         float sphere = sdSphere(pos, 1.95);
         float4 portalBox = opS(
@@ -613,7 +619,7 @@ float4 scene(float3 p)
         float3 basePos = cylinderPos - float3(.0, -6, .0);
         float baseDist = sdConeSection(basePos, 1.95, 1.9, 0.9);
         
-        d = opU(d, float4(.5, .5, .5,
+        d = opU(d, float4(.7, .7, .9,
                 softMin2(
                     softMin2(coneDist, body, .5),
                     baseDist,
@@ -636,31 +642,7 @@ float4 scene(float3 p)
         
         d = opU(d, float4(.5, .5, .9, sat));
     }
-        
     
-    // comet
-    {
-        float3 cometPos = p - float3(60, 50, 20 + time * -2.);
-        
-        float cometDist = sdSphere(cometPos, 2);
-        d = opU(d, float4(.5, .5, .5, cometDist));
-        
-        float smallCometDist1 = sdSphere(cometPos - float3(-2, 0, 2), .5);
-        d = opU(d, float4(.5, .5, .5, cometDist));
-        
-        float smallCometDist2 = sdSphere(cometPos - float3(-3, 2, 3), .5);
-        d = opU(d, float4(.5, .5, .5, smallCometDist2));
-        
-        float smallCometDist3 = sdSphere(cometPos - float3(3, 0, 2), .5);
-        d = opU(d, float4(.5, .5, .5, smallCometDist3));
-        
-        float smallCometDist4 = sdSphere(cometPos - float3(3, -4, 3), .5);
-        d = opU(d, float4(.5, .5, .5, smallCometDist4));
-        
-        float smallCometDist5 = sdSphere(cometPos - float3(3, 4, 4), .5);
-        d = opU(d, float4(.5, .5, .5, smallCometDist5));
-        
-    }
     
     
     
@@ -715,6 +697,7 @@ float4 phong(float3 pos, float3 normal, float3 rayD, float4 color)
     return ambient + diffuse + specular;
 }
 
+
 float4 main(VS_Quad input) : SV_TARGET
 {
     float3 pixelPos = float3(input.canvasXY, -NEAR_PLANE);
@@ -732,7 +715,8 @@ float4 main(VS_Quad input) : SV_TARGET
     
     //light.position.xz += float2(sin(time), cos(time)) * 2.0;
     
-    float4 color = phong(pos, calcNormal(pos), ray.d, float4(colorDist.xyz, 1.0));
+    float3 n = calcNormal(pos);
+    float4 color = phong(pos, n, ray.d, float4(colorDist.xyz, 1.0));
     
     return color;
 }
