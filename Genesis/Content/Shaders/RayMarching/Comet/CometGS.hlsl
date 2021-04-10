@@ -33,7 +33,7 @@ static float2 QuadUV[4] =
     float2(1, 1),
 };
 
-static float gQuadSize = 30.;
+static float gQuadSize = 10.;
 
 [maxvertexcount(4)]
 void main(point GS_Input input[1] : SV_POSITION, inout TriangleStream<GS_Output> outputStream)

@@ -14,7 +14,7 @@ float4 main(PS_Input input) : SV_TARGET
     float2 center = float2(0.5, 0.5);
     float falloff = 1.0 - smoothstep(0.0, .6, length(input.uv - center));
     
-    float4 color = texel;// * falloff;
+    float4 color = texel * falloff;
     
     return color;
     //return float4(1, 1, 1, 1);

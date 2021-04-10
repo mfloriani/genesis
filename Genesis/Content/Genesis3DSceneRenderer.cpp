@@ -25,6 +25,10 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "gray_noise_256.dds", "gray_noise_256");
 	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "rgba_noise_64.dds", "rgba_noise_64");
 	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "rgba_noise_256.dds", "rgba_noise_256");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "organic4_1024.dds", "organic4_1024");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "organic2_1024.dds", "organic2_1024");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "rusty_metal_512.dds", "rusty_metal_512");
+	AssetManager::Get().LoadTexture(deviceResources->GetD3DDevice(), "stars_512.dds", "stars_512");
 
 	m_camera = std::make_unique<Camera>();
 	m_starrySky = std::make_unique<StarrySky>(deviceResources);
@@ -37,7 +41,7 @@ Genesis3DSceneRenderer::Genesis3DSceneRenderer(const std::shared_ptr<DX::DeviceR
 	m_rayMarchingSun = std::make_unique<RayMarchingSun>(deviceResources);
 	m_rayMarchingGalaxy = std::make_unique<RayMarchingGalaxy>(deviceResources);
 	m_shinnyStar = std::make_unique<ShinnyStar>(deviceResources);
-	m_rayMarchingSaturn = std::make_unique<RayMarchingSaturn>(deviceResources);
+	m_rayMarchingComet = std::make_unique<RayMarchingComet>(deviceResources);
 
 	CreateDeviceDependentResources();
 	CreateWindowSizeDependentResources();
@@ -70,7 +74,7 @@ void Genesis3DSceneRenderer::CreateWindowSizeDependentResources()
 		XMMatrixTranspose(perspectiveMatrix)
 	);
 
-	m_camera->LookAt(XMFLOAT3(0.0f, 5.7f, 7.5f), XMFLOAT3(0.0f, 0.0f, 1.0f));
+	m_camera->LookAt(XMFLOAT3(0.0f, 0.f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 }
 
 // Called once per frame, rotates the cube and calculates the model and view matrices.
@@ -96,7 +100,7 @@ void Genesis3DSceneRenderer::Update(DX::StepTimer const& timer)
 	m_rayMarching->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingSun->Update(timer, m_MVPBufferData, camEye);
 	m_rayMarchingGalaxy->Update(timer, m_MVPBufferData, camEye);
-	m_rayMarchingSaturn->Update(timer, m_MVPBufferData, camEye);
+	m_rayMarchingComet->Update(timer, m_MVPBufferData, camEye);
 }
 
 void Genesis3DSceneRenderer::HandleInput(DX::StepTimer const& timer)
@@ -155,23 +159,23 @@ void Genesis3DSceneRenderer::RenderToTexture()
 {
 	m_rayMarchingSun->RenderToTexture();
 	m_rayMarchingGalaxy->RenderToTexture();
-	m_rayMarchingSaturn->RenderToTexture();
+	m_rayMarchingComet->RenderToTexture();
 }
 
 void Genesis3DSceneRenderer::Render()
 {
-	//m_rayTracing->Render();
-	//m_rayMarching->Render();
-	//m_implicitTerrain->Render();
-	//m_pottery->Render();
-	//m_narrowStrip->Render();
-	//m_tessPlanet->Render();
-	//m_rayMarchingSun->Render();
-	//m_starrySky->Render();
-	//m_shinnyStar->Render();
+	m_rayTracing->Render();
+	m_rayMarching->Render();
+	m_implicitTerrain->Render();
+	m_pottery->Render();
+	m_narrowStrip->Render();
+	m_tessPlanet->Render();
+	m_rayMarchingSun->Render();
+	m_starrySky->Render();
+	m_shinnyStar->Render();
 
-	//m_rayMarchingGalaxy->Render();
-	m_rayMarchingSaturn->Render();
+	m_rayMarchingGalaxy->Render();
+	m_rayMarchingComet->Render();
 }
 
 void Genesis::Genesis3DSceneRenderer::ToggleWireframeMode(bool onOff)
@@ -193,7 +197,7 @@ void Genesis3DSceneRenderer::CreateDeviceDependentResources()
 	m_rayMarching->CreateDeviceDependentResources();
 	m_rayMarchingSun->CreateDeviceDependentResources();
 	m_rayMarchingGalaxy->CreateDeviceDependentResources();
-	m_rayMarchingSaturn->CreateDeviceDependentResources();
+	m_rayMarchingComet->CreateDeviceDependentResources();
 }
 
 void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
@@ -208,5 +212,5 @@ void Genesis3DSceneRenderer::ReleaseDeviceDependentResources()
 	m_rayMarching->ReleaseDeviceDependentResources();
 	m_rayMarchingSun->ReleaseDeviceDependentResources();
 	m_rayMarchingGalaxy->ReleaseDeviceDependentResources();
-	m_rayMarchingSaturn->ReleaseDeviceDependentResources();
+	m_rayMarchingComet->ReleaseDeviceDependentResources();
 }

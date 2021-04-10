@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "RayMarchingSaturn.h"
+#include "RayMarchingComet.h"
 #include "Util.h"
 #include "AssetManager.h"
 
@@ -10,25 +10,28 @@
 using namespace Genesis;
 using namespace DirectX;
 
-RayMarchingSaturn::RayMarchingSaturn(const std::shared_ptr<DX::DeviceResources>& deviceResources)
+RayMarchingComet::RayMarchingComet(const std::shared_ptr<DX::DeviceResources>& deviceResources)
 	: m_deviceResources(deviceResources), m_ready(false), m_indexCount(0)
 {
-	m_transform.position = XMFLOAT3(-30.f, 10.f, -40.f);
-	//m_transform.position = XMFLOAT3(0.f, 0.f, -15.f);
+	m_noiseTexture = AssetManager::Get().GetTexture("rusty_metal_512");
+	m_noiseTexture2 = AssetManager::Get().GetTexture("organic2_1024");
+	m_noiseTexture3 = AssetManager::Get().GetTexture("stars_512");
+
+	m_transform.position = XMFLOAT3(30.f, 10.f, 0.f);
 }
 
-RayMarchingSaturn::~RayMarchingSaturn()
+RayMarchingComet::~RayMarchingComet()
 {
 }
 
-void RayMarchingSaturn::CreateDeviceDependentResources()
+void RayMarchingComet::CreateDeviceDependentResources()
 {
 	auto loadVSTask = DX::ReadDataAsync(L"RayMarchingVS.cso");
-	auto loadPSTask = DX::ReadDataAsync(L"RayMarchingSaturnPS.cso");
+	auto loadPSTask = DX::ReadDataAsync(L"RayMarchingCometPS.cso");
 
-	auto loadVSQuadTask = DX::ReadDataAsync(L"SaturnVS.cso");
-	auto loadGSQuadTask = DX::ReadDataAsync(L"SaturnGS.cso");
-	auto loadPSQuadTask = DX::ReadDataAsync(L"SaturnPS.cso");
+	auto loadVSQuadTask = DX::ReadDataAsync(L"CometVS.cso");
+	auto loadGSQuadTask = DX::ReadDataAsync(L"CometGS.cso");
+	auto loadPSQuadTask = DX::ReadDataAsync(L"CometPS.cso");
 
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& fileData) {
 		DX::ThrowIfFailed(
@@ -179,6 +182,16 @@ void RayMarchingSaturn::CreateDeviceDependentResources()
 			)
 		);
 
+		D3D11_SAMPLER_DESC SamplerDesc = {};
+		SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+		SamplerDesc.AddressV = SamplerDesc.AddressU;
+		SamplerDesc.AddressW = SamplerDesc.AddressU;
+		SamplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+
+		DX::ThrowIfFailed(
+			m_deviceResources->GetD3DDevice()->CreateSamplerState(&SamplerDesc, &m_samplerState)
+		);
+
 		// TODO: solve this fixed values
 		UINT width = 900;
 		UINT height = 900;
@@ -285,7 +298,7 @@ void RayMarchingSaturn::CreateDeviceDependentResources()
 
 }
 
-void RayMarchingSaturn::ReleaseDeviceDependentResources()
+void RayMarchingComet::ReleaseDeviceDependentResources()
 {
 	m_ready = false;
 	m_vertexShader.Reset();
@@ -298,20 +311,26 @@ void RayMarchingSaturn::ReleaseDeviceDependentResources()
 	m_rasterizerState.Reset();
 }
 
-void RayMarchingSaturn::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
+void RayMarchingComet::Update(DX::StepTimer const& timer, ModelViewProjCB& mvp, XMVECTOR& camPos)
 {
-	XMStoreFloat4x4(&m_MVPBufferData.model, XMMatrixIdentity());
+	XMVECTOR newPos = XMLoadFloat3(&m_transform.position) + XMVectorSet(0.f, 0.f, 0.1f, 0.f);
+	XMStoreFloat3(&m_transform.position, newPos);
+	
+	XMStoreFloat4x4(&m_MVPBufferData.model, XMMatrixTranspose(XMMatrixTranslation(m_transform.position.x, m_transform.position.y, m_transform.position.z)));
+
 	m_MVPBufferData.view = mvp.view;
 	m_MVPBufferData.projection = mvp.projection;
 	m_MVPBufferData.invView = mvp.invView;
 
+	
+	
 	float time = static_cast<float>(timer.GetTotalSeconds());
 	XMStoreFloat4(&m_perFrameBufferData.cameraPos, camPos);
 	XMStoreFloat4(&m_perFrameBufferData.time, XMVectorSet(time, 0.f, 0.f, 0.f));
 	XMStoreFloat4(&m_perFrameBufferData.positionW, XMLoadFloat3(&m_transform.position));
 }
 
-void RayMarchingSaturn::RenderToTexture()
+void RayMarchingComet::RenderToTexture()
 {
 	if (!m_ready) return;
 
@@ -411,6 +430,13 @@ void RayMarchingSaturn::RenderToTexture()
 
 	context->RSSetState(m_rasterizerState.Get());
 
+	context->PSSetShaderResources(0, 1, &m_noiseTexture);
+	context->PSSetShaderResources(1, 1, &m_noiseTexture2);
+	context->PSSetShaderResources(2, 1, &m_noiseTexture3);
+
+	auto sampler = m_samplerState.Get();
+	context->PSSetSamplers(0, 1, &sampler);
+
 	context->PSSetShader(
 		m_pixelShader.Get(),
 		nullptr,
@@ -423,7 +449,7 @@ void RayMarchingSaturn::RenderToTexture()
 	context->DrawIndexed(m_indexCount, 0, 0);
 }
 
-void RayMarchingSaturn::Render()
+void RayMarchingComet::Render()
 {
 	if (!m_ready) return;
 
@@ -456,6 +482,14 @@ void RayMarchingSaturn::Render()
 		m_vertexShaderQuad.Get(),
 		nullptr,
 		0
+	);
+
+	context->VSSetConstantBuffers1(
+		0,
+		1,
+		m_MVPBuffer.GetAddressOf(),
+		nullptr,
+		nullptr
 	);
 
 	context->HSSetShader(

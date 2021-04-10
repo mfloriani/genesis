@@ -10,11 +10,11 @@
 
 namespace Genesis
 {
-	class RayMarchingSaturn
+	class RayMarchingComet
 	{
 	public:
-		RayMarchingSaturn(const std::shared_ptr<DX::DeviceResources>& deviceResources);
-		~RayMarchingSaturn();
+		RayMarchingComet(const std::shared_ptr<DX::DeviceResources>& deviceResources);
+		~RayMarchingComet();
 
 		void CreateDeviceDependentResources();
 		void ReleaseDeviceDependentResources();
@@ -45,8 +45,13 @@ namespace Genesis
 		Microsoft::WRL::ComPtr<ID3D11RenderTargetView>   m_renderTargetView;
 		Microsoft::WRL::ComPtr<ID3D11DepthStencilView>   m_depthStencilView;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_shaderResourceView;
+		Microsoft::WRL::ComPtr<ID3D11SamplerState>       m_samplerState;
+
 		D3D11_VIEWPORT                                   m_viewportTexture;
 
+		ID3D11ShaderResourceView* m_noiseTexture;
+		ID3D11ShaderResourceView* m_noiseTexture2;
+		ID3D11ShaderResourceView* m_noiseTexture3;
 		ID3D11ShaderResourceView* m_textureSRV;
 
 		ModelViewProjCB	m_MVPBufferData;
