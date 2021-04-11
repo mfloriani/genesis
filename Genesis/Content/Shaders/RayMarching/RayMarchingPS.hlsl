@@ -531,7 +531,7 @@ float4 scene(float3 p)
     
     // planet with ring
     {
-        float3 planetPos = p - float3(90, 40, 55);
+        float3 planetPos = p - float3(0, 40, 85);
         d = opU(d, float4(0.6, 0.3, 0.3, sdSphere(planetPos, 20.0)));
         d = opU(d, float4(.5, .5, 0, sdTorus(planetPos + (float3(sin(time), sin(time)+.5, cos(time)+1.) * 2.), float2(35.0, 1.5))));        
     }
